@@ -17,12 +17,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.prax19.budgetguard.app.android.data.Budget
+import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
 import com.prax19.budgetguard.app.android.presentation.util.Screen
 import com.prax19.budgetguard.app.android.previews.BudgetPreviewParameterProvider
 
@@ -74,7 +73,7 @@ fun MainScreen(navController: NavController) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BudgetItem(
-    @PreviewParameter(BudgetPreviewParameterProvider::class) budget: Budget,
+    @PreviewParameter(BudgetPreviewParameterProvider::class) budget: BudgetDTO,
     navController: NavController
 ) {
     ElevatedCard(

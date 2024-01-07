@@ -5,7 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.prax19.budgetguard.app.android.data.Budget
+import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
 import com.prax19.budgetguard.app.android.api.BudgetGuardApi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -39,7 +39,7 @@ class MainScreenViewModel @Inject constructor(
     }
 
     data class ListOfBudgetsState(
-        val budgets: List<Budget> ?= emptyList(),
+        val budgets: List<BudgetDTO> ?= emptyList(),
         val isLoading: Boolean = false
     )
 
