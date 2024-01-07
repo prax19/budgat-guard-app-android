@@ -5,5 +5,5 @@ data class Operation(
     val name: String,
     val budget: Budget,
     val userId: Long,
-    val operationValue: Float
+    var value: Float
 )

@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.prax19.budgetguard.app.android.data.model.Operation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -38,8 +39,8 @@ fun BudgetDetailsScreen(
                     .padding(bottom = it.calculateBottomPadding())
                     .padding(top = it.calculateTopPadding())
             ) {
-                for(op: Long in budget.operations)
-                    Text(op.toString())
+                for(op: Operation in budget.operations)
+                    Text(op.id.toString() + " " + op.name + " " + op.value)
             }
         }
     }

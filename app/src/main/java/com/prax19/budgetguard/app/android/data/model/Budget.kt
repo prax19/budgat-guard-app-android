@@ -4,5 +4,5 @@ data class Budget (
     val id: Long,
     val name: String,
     val ownerId: Long,
-    val operations: List<Operation>
+    var operations: List<Operation>
 )

@@ -5,5 +5,5 @@ data class BudgetOperationDTO(
     val name: String,
     val budgetId: Long,
     val userId: Long,
-    val operationValue: Float
+    val value: Float
 )
