@@ -1,4 +1,4 @@
-package com.prax19.budgetguard.app.android.views.MainScreen
+package com.prax19.budgetguard.app.android.presentation.MainScreen
 
 import android.util.Log
 import androidx.compose.runtime.State
@@ -32,14 +32,14 @@ class MainScreenViewModel @Inject constructor(
                     isLoading = false
                 )
             } catch (e: Exception) {
-                Log.e("MainViewModel", "getAllBudgets: ", e)
+                Log.e("MainScreenViewModel", "getAllBudgets: ", e)
                 _state.value = state.value.copy(isLoading = false)
             }
         }
     }
 
     data class ListOfBudgetsState(
-        val budgets: List<Budget> = emptyList(),
+        val budgets: List<Budget> ?= emptyList(),
         val isLoading: Boolean = false
     )
 

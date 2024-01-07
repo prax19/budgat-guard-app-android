@@ -1,4 +1,4 @@
-package com.prax19.budgetguard.app.android.views.MainScreen
+package com.prax19.budgetguard.app.android.presentation.MainScreen
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
@@ -21,13 +21,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.prax19.budgetguard.app.android.data.Budget
+import com.prax19.budgetguard.app.android.presentation.util.Screen
 import com.prax19.budgetguard.app.android.previews.BudgetPreviewParameterProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -46,7 +48,7 @@ fun MainScreen() {
             val viewModel: MainScreenViewModel = hiltViewModel()
             val budgets = viewModel.state.value.budgets
             val isLoading = viewModel.state.value.isLoading
-            budgets.let {
+            budgets?.let {
                 LazyVerticalStaggeredGrid(
                     modifier = Modifier.
                         padding(16.dp),
@@ -55,7 +57,10 @@ fun MainScreen() {
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     content = {
                         items(budgets) { budget ->
-                            BudgetItem(budget = budget)
+                            BudgetItem(
+                                budget = budget,
+                                navController
+                            )
                         }
                     }
                 )
@@ -66,20 +71,25 @@ fun MainScreen() {
 
 }
 
-@Preview
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BudgetItem(
-    @PreviewParameter(BudgetPreviewParameterProvider::class) budget: Budget
+    @PreviewParameter(BudgetPreviewParameterProvider::class) budget: Budget,
+    navController: NavController
 ) {
     ElevatedCard(
-
-    ) {
-        Text(
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier
-                .padding(16.dp),
-            text = budget.name,
-            textAlign = TextAlign.Start
-        )
-    }
+        onClick = {
+                  navController.navigate(Screen.BudgetDetailsScreen.route +
+                          "?budgetId=${budget.id}")
+        },
+        content = {
+            Text(
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier
+                    .padding(16.dp),
+                text = budget.name,
+                textAlign = TextAlign.Start
+            )
+        }
+    )
 }
