@@ -12,18 +12,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.prax19.budgetguard.app.android.presentation.MainScreen.MainScreenViewModel
+import com.prax19.budgetguard.app.android.data.BudgetOperation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun BudgetDetailsScreen(
-    navController: NavController,
-    viewModel: BudgetDetailsScreenViewModel = hiltViewModel()
+    navController: NavController
 ) {
     val viewModel: BudgetDetailsScreenViewModel = hiltViewModel()
-    val budget = viewModel.state.value.budget
-    val isLoading = viewModel.state.value.isLoading
+    val budget = viewModel.budgetState.value.budget
+    val isLoading = viewModel.budgetState.value.isLoading
     budget?.let {
         Scaffold(
             topBar = {
@@ -40,7 +39,8 @@ fun BudgetDetailsScreen(
                     .padding(bottom = it.calculateBottomPadding())
                     .padding(top = it.calculateTopPadding())
             ) {
-
+                for(op: Long in budget.operations)
+                    Text(op.toString())
             }
         }
     }

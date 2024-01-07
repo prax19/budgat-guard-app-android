@@ -1,6 +1,7 @@
 package com.prax19.budgetguard.app.android.api
 
 import com.prax19.budgetguard.app.android.data.Budget
+import com.prax19.budgetguard.app.android.data.BudgetOperation
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Path
@@ -22,4 +23,11 @@ interface BudgetGuardApi {
     suspend fun getAllBudgets(
         @Header("Authorization") auth: String
     ): List<Budget>
+
+    @GET("budget/{id}/operations")
+    suspend fun getBudgetOperations(
+        @Header("Authorization") auth: String,
+        @Path("id") id: Long
+    ): List<BudgetOperation>
+
 }
