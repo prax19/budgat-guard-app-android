@@ -1,6 +1,6 @@
-package com.prax19.budgetguard.app.android.data
+package com.prax19.budgetguard.app.android.data.dto
 
-data class Budget(
+data class BudgetDTO(
     val id: Long,
     val name: String,
     val ownerId: Long,

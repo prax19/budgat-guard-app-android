@@ -7,8 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prax19.budgetguard.app.android.api.BudgetGuardApi
-import com.prax19.budgetguard.app.android.data.Budget
-import com.prax19.budgetguard.app.android.data.BudgetOperation
+import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -72,7 +71,7 @@ class BudgetDetailsScreenViewModel @Inject constructor(
 //    }
 
     data class BudgetState(
-        val budget: Budget? = null,
+        val budget: BudgetDTO? = null,
         val isLoading: Boolean = false
     )
 
