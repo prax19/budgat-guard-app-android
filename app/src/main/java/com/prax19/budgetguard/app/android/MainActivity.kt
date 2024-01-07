@@ -7,6 +7,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.prax19.budgetguard.app.android.ui.theme.BudgetGuardTheme
+import com.prax19.budgetguard.app.android.views.MainScreen.MainScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
