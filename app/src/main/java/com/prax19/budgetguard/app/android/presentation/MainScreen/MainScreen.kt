@@ -3,6 +3,7 @@ package com.prax19.budgetguard.app.android.presentation.MainScreen
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -49,11 +50,10 @@ fun MainScreen(navController: NavController) {
             val isLoading = viewModel.state.value.isLoading
             budgets?.let {
                 LazyVerticalStaggeredGrid(
-                    modifier = Modifier.
-                        padding(16.dp),
                     columns = StaggeredGridCells.Adaptive(128.dp),
                     verticalItemSpacing = 4.dp,
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    contentPadding = PaddingValues(16.dp),
                     content = {
                         items(budgets) { budget ->
                             BudgetItem(
