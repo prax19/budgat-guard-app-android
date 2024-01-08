@@ -2,6 +2,7 @@ package com.prax19.budgetguard.app.android.presentation.BudgetScreen
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,20 +45,30 @@ fun BudgetDetailsScreen(
 
     val openAddEditOperation = remember { mutableStateOf(false) }
 
-    budget?.let {
+    if(isLoading)
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            CircularProgressIndicator()
+        }
 
-        when { openAddEditOperation.value ->
-            AddEditOperationDialog(
-                onSave = { name, value ->
-                    viewModel.createOperation(
-                        Operation(-1, name, budget, budget.ownerId, value) //TODO: handle user
-                    )
-                    openAddEditOperation.value = false
-                },
-                onDismissRequest = {
-                    openAddEditOperation.value = false
-                }
-            )
+
+    budget?.let {
+        when {
+            openAddEditOperation.value ->
+                AddEditOperationDialog(
+                    onSave = { name, value ->
+                        viewModel.createOperation(
+                            Operation(-1, name, budget, budget.ownerId, value) //TODO: handle user
+                        )
+                        openAddEditOperation.value = false
+                    },
+                    onDismissRequest = {
+                        openAddEditOperation.value = false
+                    }
+                )
         }
 
         Scaffold(
@@ -94,10 +106,13 @@ fun BudgetDetailsScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         contentPadding = PaddingValues(16.dp),
                         content = {
-                            items(budget.operations) { operation ->
-                                BudgetOperationItem(
-                                    navController = navController,
-                                    operation = operation)
+                            budget?.let {
+                                items(budget.operations) { operation ->
+                                    BudgetOperationItem(
+                                        navController = navController,
+                                        operation = operation
+                                    )
+                                }
                             }
                         }
                     )
