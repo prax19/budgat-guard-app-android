@@ -55,9 +55,6 @@ class MainActivity : ComponentActivity() {
                         ) {
                             BudgetDetailsScreen(navController = navConstoller)
                         }
-                        composable(route = Screen.AddEditBudgetOperationScreen.route) {
-
-                        }
                     }
                 }
             }
