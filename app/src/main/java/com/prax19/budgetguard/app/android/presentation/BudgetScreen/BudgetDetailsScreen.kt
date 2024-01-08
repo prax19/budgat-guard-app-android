@@ -1,28 +1,43 @@
 package com.prax19.budgetguard.app.android.presentation.BudgetScreen
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.prax19.budgetguard.app.android.data.model.Operation
+import com.prax19.budgetguard.app.android.presentation.AddEditBudgetOperationScreen.AddEditOperationScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -33,36 +48,69 @@ fun BudgetDetailsScreen(
     val viewModel: BudgetDetailsScreenViewModel = hiltViewModel()
     val budget = viewModel.budgetState.value.budget
     val isLoading = viewModel.budgetState.value.isLoading
+
+    val openAddEditOperation = remember { mutableStateOf(false) }
+
     budget?.let {
+
+        when { openAddEditOperation.value ->
+            AddEditOperationScreen(
+                onSave = { name, value ->
+                    Log.e("Test", "${name}, ${value.toString()}")
+                    openAddEditOperation.value = false
+                },
+                onDismissRequest = {
+                    openAddEditOperation.value = false
+                }
+            )
+        }
+
         Scaffold(
+            modifier = Modifier
+                .fillMaxSize(),
             topBar = {
                 TopAppBar(
                     title = {
                         Text(text = budget.name)
                     }
                 )
-            }
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = it.calculateBottomPadding())
-                    .padding(top = it.calculateTopPadding())
-            ) {
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+            },
+            floatingActionButton =
+            {
+                FloatingActionButton(
+                    onClick = {
+                        openAddEditOperation.value = true
+                    },
                     content = {
-                        items(budget.operations) { operation ->
-                            BudgetOperationItem(
-                                navController = navController,
-                                operation = operation)
-                        }
+                        Icon(
+                            Icons.Filled.Add,
+                            "Add new operation"
+                        )
                     }
                 )
+            },
+            content = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = it.calculateBottomPadding())
+                        .padding(top = it.calculateTopPadding())
+                ) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        content = {
+                            items(budget.operations) { operation ->
+                                BudgetOperationItem(
+                                    navController = navController,
+                                    operation = operation)
+                            }
+                        }
+                    )
+                }
             }
-        }
+        )
     }
 }
 
@@ -134,5 +182,62 @@ fun BudgetOperationItem(
             }
         }
     }
+}
 
+@Composable
+fun AddEditBudgetOperationDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismissRequest
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            content = {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Add budget operation",
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    OutlinedTextField(
+                        value = "s",
+                        onValueChange = {}
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.Absolute.Right
+                    ) {
+                        TextButton(
+                            onClick = onDismissRequest,
+                            modifier = Modifier
+                                .padding(8.dp)
+                        ) {
+                            Text(text = "Cancel")
+                        }
+                        TextButton(
+                            onClick = onConfirmation,
+                            modifier = Modifier
+                                .padding(8.dp)
+                        ) {
+                            Text(text = "Add")
+                        }
+                    }
+                }
+            }
+        )
+    }
 }
