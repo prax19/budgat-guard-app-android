@@ -186,7 +186,7 @@ fun BudgetItem(
 }
 
 @Composable
-fun ContextActions(
+fun ContextActions( // TODO: show composable animation
     onClickEdit: () -> Unit,
     onClickDelete: () -> Unit,
     show: Boolean
