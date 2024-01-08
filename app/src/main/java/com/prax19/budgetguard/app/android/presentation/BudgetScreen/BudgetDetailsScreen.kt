@@ -1,7 +1,6 @@
 package com.prax19.budgetguard.app.android.presentation.BudgetScreen
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -56,7 +55,9 @@ fun BudgetDetailsScreen(
         when { openAddEditOperation.value ->
             AddEditOperationScreen(
                 onSave = { name, value ->
-                    Log.e("Test", "${name}, ${value.toString()}")
+                    viewModel.createOperation(
+                        Operation(-1, name, budget, budget.ownerId, value.toFloat()) //TODO: handle user
+                    )
                     openAddEditOperation.value = false
                 },
                 onDismissRequest = {

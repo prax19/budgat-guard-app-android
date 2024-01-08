@@ -2,8 +2,10 @@ package com.prax19.budgetguard.app.android.api
 
 import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
 import com.prax19.budgetguard.app.android.data.dto.BudgetOperationDTO
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface BudgetGuardApi {
@@ -29,4 +31,10 @@ interface BudgetGuardApi {
         @Path("id") id: Long
     ): List<BudgetOperationDTO>
 
+    @POST("budget/{id}/operation")
+    suspend fun postBudgetOperation(
+        @Header("Authorization") auth: String,
+        @Path("id") id: Long,
+        @Body operationDTO: BudgetOperationDTO
+    )
 }

@@ -20,6 +20,8 @@ class BudgetDetailsScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
+    private val auth = "Basic cGF0cnlrLnBpcm9nQG8zNjUudXMuZWR1LnBsOnBhc3N3b3Jk"
+
     private val _budgetState = mutableStateOf(BudgetState())
     val budgetState: State<BudgetState> = _budgetState
 
@@ -41,11 +43,11 @@ class BudgetDetailsScreenViewModel @Inject constructor(
                 _budgetState.value = budgetState.value.copy(isLoading = true)
 
                 val budgetDTO = api.getBudget(
-                    "Basic cGF0cnlrLnBpcm9nQG8zNjUudXMuZWR1LnBsOnBhc3N3b3Jk",
+                    auth,
                     budgetId
                 )
                 val operationsDTO: List<BudgetOperationDTO> = api.getBudgetOperations(
-                    "Basic cGF0cnlrLnBpcm9nQG8zNjUudXMuZWR1LnBsOnBhc3N3b3Jk",
+                    auth,
                     budgetId
                 )
                 val budget = Budget(
@@ -74,6 +76,57 @@ class BudgetDetailsScreenViewModel @Inject constructor(
                 Log.e("BudgetDetailsScreenViewModel", "getBudget: ", e)
                 _budgetState.value = budgetState.value.copy(isLoading = false)
             }
+        }
+    }
+
+    fun createOperation(operation: Operation) {
+        try {
+            budgetState.value.budget?.let {
+                val operationDTO = BudgetOperationDTO(
+                    -1,
+                    operation.name,
+                    operation.budget.id,
+                    operation.userId,
+                    operation.value
+                )
+                viewModelScope.launch {
+                    api.postBudgetOperation(
+                        auth,
+                        operationDTO.budgetId,
+                        operationDTO
+                    )
+
+                    _budgetState.value = budgetState.value.copy(isLoading = true)
+
+                    val budget = budgetState.value.budget
+
+                    budget?.let {
+                        val operationsDTO: List<BudgetOperationDTO> = api.getBudgetOperations(
+                            auth,
+                            operationDTO.budgetId
+                        )
+
+                        val operations: List<Operation> = operationsDTO.map { operation ->
+                            Operation(
+                                operation.id,
+                                operation.name,
+                                budget,
+                                operation.userId,
+                                operation.value
+                            )
+                        }
+                        budget.operations = operations
+                    }
+
+                    _budgetState.value = budgetState.value.copy(
+                        budget = budget,
+                        isLoading = false
+                    )
+
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("BudgetDetailsScreenViewModel", "createOperation: ", e)
         }
     }
 
