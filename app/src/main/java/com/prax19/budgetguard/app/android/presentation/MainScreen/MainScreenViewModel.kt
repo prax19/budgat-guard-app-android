@@ -5,8 +5,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
 import com.prax19.budgetguard.app.android.api.BudgetGuardApi
+import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -15,6 +15,8 @@ import javax.inject.Inject
 class MainScreenViewModel @Inject constructor(
     private val api: BudgetGuardApi
 ) : ViewModel() {
+
+    private val auth = "Basic cGF0cnlrLnBpcm9nQG8zNjUudXMuZWR1LnBsOnBhc3N3b3Jk"
 
     private val _state = mutableStateOf(ListOfBudgetsState())
     val state: State<ListOfBudgetsState> = _state
@@ -28,7 +30,7 @@ class MainScreenViewModel @Inject constructor(
             try {
                 _state.value = state.value.copy(isLoading = true)
                 _state.value = state.value.copy(
-                    budgets = api.getAllBudgets("Basic cGF0cnlrLnBpcm9nQG8zNjUudXMuZWR1LnBsOnBhc3N3b3Jk"),
+                    budgets = api.getAllBudgets(auth),
                     isLoading = false
                 )
             } catch (e: Exception) {
@@ -36,6 +38,17 @@ class MainScreenViewModel @Inject constructor(
                 _state.value = state.value.copy(isLoading = false)
             }
         }
+    }
+
+    fun createNewBudget(budgetDTO: BudgetDTO) {
+        viewModelScope.launch {
+            try {
+                api.postBudget(auth, budgetDTO)
+            } catch (e: Exception) {
+                Log.e("MainScreenViewModel", "createNewBudget: ", e)
+            }
+        }
+        getAllBudgets()
     }
 
     data class ListOfBudgetsState(

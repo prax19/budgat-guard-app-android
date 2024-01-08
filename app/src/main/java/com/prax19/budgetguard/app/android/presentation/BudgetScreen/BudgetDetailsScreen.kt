@@ -106,13 +106,11 @@ fun BudgetDetailsScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         contentPadding = PaddingValues(16.dp),
                         content = {
-                            budget?.let {
-                                items(budget.operations) { operation ->
-                                    BudgetOperationItem(
-                                        navController = navController,
-                                        operation = operation
-                                    )
-                                }
+                            items(budget.operations) { operation ->
+                                BudgetOperationItem(
+                                    navController = navController,
+                                    operation = operation
+                                )
                             }
                         }
                     )

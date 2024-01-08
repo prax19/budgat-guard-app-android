@@ -14,6 +14,12 @@ interface BudgetGuardApi {
         const val BASE_URL = "http://192.168.0.205:8080/api/v1/"
     }
 
+    @POST("budget")
+    suspend fun postBudget(
+        @Header("Authorization") auth: String,
+        @Body operationDTO: BudgetDTO
+    )
+
     @GET("budget/{id}")
     suspend fun getBudget(
         @Header("Authorization") auth: String,
