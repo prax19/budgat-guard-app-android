@@ -51,6 +51,17 @@ class MainScreenViewModel @Inject constructor(
         getAllBudgets()
     }
 
+    fun deleteBudget(budgetId: Long) {
+        viewModelScope.launch {
+            try {
+                api.deleteBudget(auth, budgetId)
+            } catch (e: Exception) {
+                Log.e("MainScreenViewModel", "deleteBudget: ", e)
+            }
+            suspend { getAllBudgets() }.invoke()
+        }
+    }
+
     data class ListOfBudgetsState(
         val budgets: List<BudgetDTO> ?= emptyList(),
         val isLoading: Boolean = false

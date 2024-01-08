@@ -72,7 +72,10 @@ fun MainScreen(navController: NavController) {
 
                         },
                         onClickDelete = {
-
+                            contextActionsBudgetId?.let {
+                                viewModel.deleteBudget(it)
+                            }
+                            onCloseContextAction()
                         },
                         contextActionsBudgetId != null
                     )
