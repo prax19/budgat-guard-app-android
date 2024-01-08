@@ -13,7 +13,6 @@ import com.prax19.budgetguard.app.android.data.model.Operation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @HiltViewModel
 class BudgetDetailsScreenViewModel @Inject constructor(
@@ -63,6 +62,31 @@ class BudgetDetailsScreenViewModel @Inject constructor(
                 )
             } catch (e: Exception) {
                 Log.e("BudgetDetailsScreenViewModel", "getBudget: ", e)
+                _budgetState.value = budgetState.value.copy(isLoading = false)
+            }
+        }
+    }
+
+    fun deleteBudget() {
+        viewModelScope.launch {
+            try {
+                val budget = budgetState.value.budget
+                budget?.let {
+                    _budgetState.value = budgetState.value.copy(isLoading = true)
+
+                    api.deleteBudget(
+                        auth,
+                        budget.id
+                    )
+
+                    _budgetState.value = budgetState.value.copy(
+                        budget = null,
+                        isLoading = false
+                    )
+                }
+
+            } catch (e: Exception) {
+                Log.e("BudgetDetailsScreenViewModel", "deleteBudget: ", e)
                 _budgetState.value = budgetState.value.copy(isLoading = false)
             }
         }

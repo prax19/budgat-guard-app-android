@@ -1,6 +1,9 @@
 package com.prax19.budgetguard.app.android.presentation.MainScreen
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,28 +14,34 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
 import com.prax19.budgetguard.app.android.presentation.util.Screen
-import com.prax19.budgetguard.app.android.previews.BudgetPreviewParameterProvider
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(navController: NavController) {
@@ -43,11 +52,30 @@ fun MainScreen(navController: NavController) {
 
     val openAddEditBudget = remember { mutableStateOf(false) }
 
+    var contextActionsBudgetId by rememberSaveable { mutableStateOf<Long?>(null) }
+
+    val onCloseContextAction: () -> Unit = {
+        contextActionsBudgetId = null
+    }
+
     Scaffold(
+        modifier = Modifier
+            .pointerInput(onCloseContextAction) { detectTapGestures { onCloseContextAction() } },
         topBar = {
             TopAppBar(
                 title = {
                     Text(text = "Budget Guard")
+                },
+                actions = {
+                    ContextActions(
+                        onClickEdit = {
+
+                        },
+                        onClickDelete = {
+
+                        },
+                        contextActionsBudgetId != null
+                    )
                 }
             )
         },
@@ -55,6 +83,7 @@ fun MainScreen(navController: NavController) {
             FloatingActionButton(
                 onClick = {
                     openAddEditBudget.value = true
+                    onCloseContextAction()
                 },
                 content = {
                     Icon(
@@ -96,8 +125,18 @@ fun MainScreen(navController: NavController) {
                         content = {
                             items(budgets) { budget ->
                                 BudgetItem(
-                                    budget = budget,
-                                    navController
+                                    budget,
+                                    onClick = {
+                                        onCloseContextAction()
+                                        navController.navigate(
+                                            Screen.BudgetDetailsScreen.route +
+                                                    "?budgetId=${budget.id}"
+                                        )
+                                    },
+                                    onLongClick = {
+                                        contextActionsBudgetId = budget.id
+                                    },
+                                    selected = contextActionsBudgetId == budget.id
                                 )
                             }
                         }
@@ -110,18 +149,28 @@ fun MainScreen(navController: NavController) {
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BudgetItem(
-    @PreviewParameter(BudgetPreviewParameterProvider::class) budget: BudgetDTO,
-    navController: NavController
+    budget: BudgetDTO,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    selected: Boolean
 ) {
-    ElevatedCard(
-        onClick = {
-                  navController.navigate(Screen.BudgetDetailsScreen.route +
-                          "?budgetId=${budget.id}")
-        },
-        content = {
+    ElevatedCard{
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongClick
+                ),
+            color =
+            if(selected)
+                MaterialTheme.colorScheme.surfaceVariant
+            else
+                MaterialTheme.colorScheme.surface
+        ) {
             Text(
                 style = MaterialTheme.typography.titleSmall,
                 modifier = Modifier
@@ -130,5 +179,31 @@ fun BudgetItem(
                 textAlign = TextAlign.Start
             )
         }
-    )
+    }
+}
+
+@Composable
+fun ContextActions(
+    onClickEdit: () -> Unit,
+    onClickDelete: () -> Unit,
+    show: Boolean
+) {
+    if(show) {
+        IconButton(
+            onClick = onClickEdit,
+            content = {
+                Icon(
+                    Icons.Filled.Edit,
+                    "edit selected")
+            }
+        )
+        IconButton(
+            onClick = onClickDelete,
+            content = {
+                Icon(
+                    Icons.Filled.Delete,
+                    "delete selected")
+            }
+        )
+    }
 }
