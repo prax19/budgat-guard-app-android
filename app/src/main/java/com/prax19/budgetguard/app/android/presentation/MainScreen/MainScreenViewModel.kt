@@ -47,8 +47,8 @@ class MainScreenViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("MainScreenViewModel", "createNewBudget: ", e)
             }
+            suspend { getAllBudgets() }.invoke()
         }
-        getAllBudgets()
     }
 
     fun deleteBudget(budgetId: Long) {
