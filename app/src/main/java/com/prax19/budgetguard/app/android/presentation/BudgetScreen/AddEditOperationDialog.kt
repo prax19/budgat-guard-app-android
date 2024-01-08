@@ -1,4 +1,4 @@
-package com.prax19.budgetguard.app.android.presentation.AddEditBudgetOperationScreen
+package com.prax19.budgetguard.app.android.presentation.BudgetScreen
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
@@ -35,7 +35,7 @@ import androidx.compose.ui.window.DialogProperties
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun AddEditOperationScreen(
+fun AddEditOperationDialog(
     onSave: (name: String, value: Float) -> Unit,
     onDismissRequest: () -> Unit
 ) {

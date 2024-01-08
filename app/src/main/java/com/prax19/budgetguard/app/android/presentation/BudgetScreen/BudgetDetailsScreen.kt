@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.prax19.budgetguard.app.android.data.model.Operation
-import com.prax19.budgetguard.app.android.presentation.AddEditBudgetOperationScreen.AddEditOperationScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -47,7 +46,7 @@ fun BudgetDetailsScreen(
     budget?.let {
 
         when { openAddEditOperation.value ->
-            AddEditOperationScreen(
+            AddEditOperationDialog(
                 onSave = { name, value ->
                     viewModel.createOperation(
                         Operation(-1, name, budget, budget.ownerId, value) //TODO: handle user
