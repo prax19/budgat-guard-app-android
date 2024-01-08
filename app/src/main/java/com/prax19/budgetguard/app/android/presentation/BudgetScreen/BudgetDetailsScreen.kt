@@ -56,7 +56,7 @@ fun BudgetDetailsScreen(
             AddEditOperationScreen(
                 onSave = { name, value ->
                     viewModel.createOperation(
-                        Operation(-1, name, budget, budget.ownerId, value.toFloat()) //TODO: handle user
+                        Operation(-1, name, budget, budget.ownerId, value) //TODO: handle user
                     )
                     openAddEditOperation.value = false
                 },

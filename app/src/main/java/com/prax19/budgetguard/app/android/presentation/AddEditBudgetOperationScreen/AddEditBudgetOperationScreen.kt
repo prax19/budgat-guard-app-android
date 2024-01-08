@@ -2,27 +2,37 @@ package com.prax19.budgetguard.app.android.presentation.AddEditBudgetOperationSc
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.InputChip
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -32,7 +42,7 @@ import androidx.compose.ui.window.DialogProperties
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AddEditOperationScreen(
-    onSave: (name: String, value: String) -> Unit,
+    onSave: (name: String, value: Float) -> Unit,
     onDismissRequest: () -> Unit
 ) {
 
@@ -40,6 +50,9 @@ fun AddEditOperationScreen(
 
     var name by remember { mutableStateOf("") }
     val nameFocusRequester = remember { FocusRequester() }
+
+    val operationTypes = listOf("expense", "income")
+    var selectedType by remember { mutableStateOf(operationTypes[0]) }
 
     var value by remember { mutableStateOf("") }
     val valueFocusRequester = remember { FocusRequester() }
@@ -61,7 +74,13 @@ fun AddEditOperationScreen(
                         TextButton(
                             modifier = Modifier
                                 .focusRequester(saveButtonFocusRequester),
-                            onClick = { onSave(name, value) }
+                            onClick = {
+                                val valueFloat = if(selectedType == operationTypes[0])
+                                    value.toFloat() * -1
+                                else
+                                    value.toFloat()
+                                onSave(name, valueFloat)
+                            }
                         ) {
                             Text("save")
                         }
@@ -77,8 +96,25 @@ fun AddEditOperationScreen(
                 ) {
                     Column(
                         modifier = Modifier
-                            .padding(20.dp)
+                            .padding(16.dp)
                     ) {
+
+                        Row {
+                            operationTypes.forEach {operationType ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    InputChip(
+                                        modifier = Modifier
+                                            .padding(4.dp),
+                                        selected = (operationType == selectedType),
+                                        onClick = { selectedType = operationType },
+                                        label = { Text(operationType) },
+                                    )
+                                }
+                            }
+                        }
+
                         OutlinedTextField(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -104,6 +140,7 @@ fun AddEditOperationScreen(
                                 }
                             )
                         )
+
                         OutlinedTextField(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -129,7 +166,11 @@ fun AddEditOperationScreen(
                             ),
                             keyboardActions = KeyboardActions(
                                 onAny = {
-                                    onSave(name, value)
+                                    val valueFloat = if(selectedType == operationTypes[0])
+                                        value.toFloat() * -1
+                                    else
+                                        value.toFloat()
+                                    onSave(name, valueFloat)
                                 }
                             )
                         )
