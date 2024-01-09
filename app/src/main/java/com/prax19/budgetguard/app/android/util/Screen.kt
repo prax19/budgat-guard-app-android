@@ -1,4 +1,4 @@
-package com.prax19.budgetguard.app.android.presentation.util
+package com.prax19.budgetguard.app.android.util
 
 sealed class Screen(val route: String) {
 

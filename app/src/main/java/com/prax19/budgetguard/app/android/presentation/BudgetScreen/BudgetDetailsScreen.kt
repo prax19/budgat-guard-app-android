@@ -1,6 +1,7 @@
 package com.prax19.budgetguard.app.android.presentation.BudgetScreen
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,14 +25,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.prax19.budgetguard.app.android.data.model.Operation
+import com.prax19.budgetguard.app.android.presentation.ContextActions
+import com.prax19.budgetguard.app.android.presentation.Selectable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -44,6 +51,13 @@ fun BudgetDetailsScreen(
     val isLoading = viewModel.budgetState.value.isLoading
 
     val openAddEditOperation = remember { mutableStateOf(false) }
+
+    //TODO: selection of multiple items
+    var contextActionsOperationId by rememberSaveable { mutableStateOf<Long?>(null) }
+
+    val onCloseContextAction: () -> Unit = {
+        contextActionsOperationId = null
+    }
 
     if(isLoading)
         Box(
@@ -73,11 +87,29 @@ fun BudgetDetailsScreen(
 
         Scaffold(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .pointerInput(onCloseContextAction) { detectTapGestures { onCloseContextAction() } },
             topBar = {
                 TopAppBar(
                     title = {
                         Text(text = budget.name)
+                    },
+                    actions = {
+                        ContextActions(
+                            onClickEdit = {
+                                contextActionsOperationId?.let {
+                                    //TODO: operation editing
+                                }
+                                onCloseContextAction()
+                            },
+                            onClickDelete = {
+                                contextActionsOperationId?.let {
+                                    //TODO: operation deleting
+                                }
+                                onCloseContextAction()
+                            },
+                            contextActionsOperationId != null
+                        )
                     }
                 )
             },
@@ -86,6 +118,7 @@ fun BudgetDetailsScreen(
                 FloatingActionButton(
                     onClick = {
                         openAddEditOperation.value = true
+                        onCloseContextAction()
                     },
                     content = {
                         Icon(
@@ -108,8 +141,15 @@ fun BudgetDetailsScreen(
                         content = {
                             items(budget.operations) { operation ->
                                 BudgetOperationItem(
-                                    navController = navController,
-                                    operation = operation
+                                    operation = operation,
+                                    onClick = {
+                                        onCloseContextAction()
+                                        //TODO: operation details
+                                    },
+                                    onLongClick = {
+                                        contextActionsOperationId = operation.id
+                                    },
+                                    selected = contextActionsOperationId == operation.id
                                 )
                             }
                         }
@@ -122,69 +162,77 @@ fun BudgetDetailsScreen(
 
 @Composable
 fun BudgetOperationItem(
-    navController: NavController,
-    operation: Operation
+    operation: Operation,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    selected: Boolean
 ) {
 
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth(),
     ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
+        Selectable(
+            selected = selected,
+            onClick = onClick,
+            onLongClick = onLongClick
         ) {
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(16.dp)
             ) {
-                Column(
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth(0.75f),
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = operation.name,
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(0.75f),
+                    ) {
+                        Text(
+                            text = operation.name,
+                            style = MaterialTheme.typography.titleMedium
+                        )
 
 //                    Text(
 //                        text = "Short transaction description. Short transaction description. Short transaction description. Short transaction description. Short transaction description. Short transaction description. Short transaction description.",
 //                        style = MaterialTheme.typography.bodySmall,
 //                        maxLines = 3
 //                    )
+                    }
+                    val color =
+                        if(operation.value < 0)
+                            MaterialTheme.colorScheme.error
+                        else
+                            MaterialTheme.colorScheme.primary
+                    Text(
+                        text = "${"%.2f".format(operation.value)} zł",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = color
+                    )
                 }
-                val color =
-                    if(operation.value < 0)
-                        MaterialTheme.colorScheme.error
-                    else
-                        MaterialTheme.colorScheme.primary
-                Text(
-                    text = "${"%.2f".format(operation.value)} zł",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = color
+                Divider(
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .padding(bottom = 4.dp)
                 )
-            }
-            Divider(
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .padding(bottom = 4.dp)
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Category",
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Text(
-                    text = "prax19 • 16.12.2018",
-                    style = MaterialTheme.typography.bodySmall
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Category",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Text(
+                        text = "prax19 • 16.12.2018",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
         }
     }
