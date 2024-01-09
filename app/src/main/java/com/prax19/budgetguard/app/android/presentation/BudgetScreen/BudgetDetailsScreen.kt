@@ -104,6 +104,7 @@ fun BudgetDetailsScreen(
                             },
                             onClickDelete = {
                                 contextActionsOperationId?.let {
+                                    //TODO: add operation deletion dialog
                                     viewModel.deleteOperation(it)
                                 }
                                 onCloseContextAction()
@@ -144,7 +145,7 @@ fun BudgetDetailsScreen(
                                     operation = operation,
                                     onClick = {
                                         onCloseContextAction()
-                                        //TODO: operation details
+                                        //TODO: operation details screen
                                     },
                                     onLongClick = {
                                         contextActionsOperationId = operation.id

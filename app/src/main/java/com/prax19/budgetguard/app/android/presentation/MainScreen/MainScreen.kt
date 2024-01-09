@@ -66,11 +66,14 @@ fun MainScreen(navController: NavController) {
                 actions = {
                     ContextActions(
                         onClickEdit = {
-                                      //TODO: budget editing
+                            contextActionsBudgetId?.let {
+                                //TODO: budget editing
+                            }
+                            onCloseContextAction()
                         },
                         onClickDelete = {
                             contextActionsBudgetId?.let {
-                                //TODO: add confirmation dialog
+                                //TODO: add budget deletion dialog
                                 viewModel.deleteBudget(it)
                             }
                             onCloseContextAction()
