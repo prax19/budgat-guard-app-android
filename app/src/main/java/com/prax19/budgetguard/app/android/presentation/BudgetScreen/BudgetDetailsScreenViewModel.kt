@@ -69,11 +69,12 @@ class BudgetDetailsScreenViewModel @Inject constructor(
 
     fun createOperation(operation: Operation) {
         try {
-            budgetState.value.budget?.let {
+            val budget = budgetState.value.budget
+            budget?.let {
                 val operationDTO = BudgetOperationDTO(
                     -1,
                     operation.name,
-                    operation.budget.id,
+                    it.id,
                     operation.userId,
                     operation.value
                 )
@@ -91,6 +92,25 @@ class BudgetDetailsScreenViewModel @Inject constructor(
         } catch (e: Exception) {
             Log.e("BudgetDetailsScreenViewModel", "createOperation: ", e)
         }
+    }
+
+    fun deleteOperation(id: Long) {
+        try {
+            val budget = budgetState.value.budget
+            budget?.let {
+                viewModelScope.launch {
+                    api.deleteOperation(
+                        auth,
+                        it.id,
+                        id
+                    )
+                    refreshListOfOperations(budget)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("BudgetDetailsScreenViewModel", "deleteOperation: ", e)
+        }
+
     }
 
     private suspend fun refreshListOfOperations(budget: Budget) {

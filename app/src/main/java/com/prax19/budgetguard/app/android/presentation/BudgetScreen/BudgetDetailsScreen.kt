@@ -104,7 +104,7 @@ fun BudgetDetailsScreen(
                             },
                             onClickDelete = {
                                 contextActionsOperationId?.let {
-                                    //TODO: operation deleting
+                                    viewModel.deleteOperation(it)
                                 }
                                 onCloseContextAction()
                             },
