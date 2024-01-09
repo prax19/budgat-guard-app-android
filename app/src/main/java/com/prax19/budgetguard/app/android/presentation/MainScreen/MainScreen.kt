@@ -68,15 +68,14 @@ fun MainScreen(navController: NavController) {
                         onClickEdit = {
                             contextActionsBudgetId?.let {
                                 //TODO: budget editing
+                                openAddEditBudget.value = true
                             }
-                            onCloseContextAction()
                         },
                         onClickDelete = {
                             contextActionsBudgetId?.let {
                                 //TODO: add budget deletion dialog
                                 viewModel.deleteBudget(it)
                             }
-                            onCloseContextAction()
                         },
                         contextActionsBudgetId != null
                     )
@@ -102,15 +101,26 @@ fun MainScreen(navController: NavController) {
             when {
                 openAddEditBudget.value ->
                     AddEditBudgetDialog(
-                        onSave = { name ->
+                        onBudgetCreation = { budget ->
                             viewModel.createNewBudget(
-                                BudgetDTO(-1, name, 1, emptyList()) //TODO: handle user
+                                BudgetDTO(
+                                    budget.id,
+                                    budget.name,
+                                    budget.ownerId,
+                                    budget.operations
+                                ) //TODO: handle user
                             )
                             openAddEditBudget.value = false
+                            onCloseContextAction()
+                        },
+                        onBudgetEdition = {
+
                         },
                         onDismissRequest = {
                             openAddEditBudget.value = false
-                        }
+                            onCloseContextAction()
+                        },
+                        budget = viewModel.getBudget(contextActionsBudgetId)
                     )
             }
 

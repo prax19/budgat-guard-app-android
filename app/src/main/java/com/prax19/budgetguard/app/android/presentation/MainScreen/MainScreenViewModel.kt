@@ -40,6 +40,26 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
+    fun getBudget(id: Long?): BudgetDTO? {
+        try {
+            id?.let{
+                if(id < 0)
+                    return null
+                val budgets = state.value.budgets
+                budgets?.let {
+                    for(budget: BudgetDTO in it) {
+                        if(budget.id == id)
+                            return budget
+                    }
+                }
+            }
+            return null
+        } catch (e: Exception) {
+            Log.e("MainScreenViewModel", "getBudget: ", e)
+            return null
+        }
+    }
+
     fun createNewBudget(budgetDTO: BudgetDTO) {
         viewModelScope.launch {
             try {

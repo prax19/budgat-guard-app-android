@@ -27,19 +27,28 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AddEditBudgetDialog(
-    onSave: (name: String) -> Unit,
-    onDismissRequest: () -> Unit
+    onBudgetCreation: (newBudget: BudgetDTO) -> Unit,
+    onBudgetEdition: (editedBudget: BudgetDTO) -> Unit,
+    onDismissRequest: () -> Unit,
+    budget: BudgetDTO?
 ) {
+
+    var defaultBudget = BudgetDTO(-1, "", -1, emptyList())
+    budget?.let {
+        defaultBudget = budget
+    }
 
     val saveButtonFocusRequester = remember { FocusRequester() }
 
-    var name by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(defaultBudget.name) }
     val nameFocusRequester = remember { FocusRequester() }
+
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
@@ -59,7 +68,26 @@ fun AddEditBudgetDialog(
                                 modifier = Modifier
                                     .focusRequester(saveButtonFocusRequester),
                                 onClick = {
-                                    onSave(name)
+                                    budget?.let {
+                                        onBudgetEdition(
+                                            BudgetDTO(
+                                                defaultBudget.id,
+                                                defaultBudget.name,
+                                                defaultBudget.ownerId,
+                                                defaultBudget.operations
+                                            )
+                                        )
+                                    } ?: kotlin.run {
+                                        onBudgetCreation(
+                                            BudgetDTO(
+                                                defaultBudget.id,
+                                                name,
+                                                defaultBudget.ownerId,
+                                                defaultBudget.operations
+                                            )
+                                        )
+                                    }
+                                    //onBudgetCreation(defaultBudget)
                                 }
                             ) {
                                 Text("save")
