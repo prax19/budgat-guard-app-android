@@ -31,24 +31,55 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import com.prax19.budgetguard.app.android.data.dto.BudgetOperationDTO
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AddEditOperationDialog(
-    onSave: (name: String, value: Float) -> Unit,
-    onDismissRequest: () -> Unit
+    onOperationCreation: (operation: BudgetOperationDTO) -> Unit,
+    onOperationEdition: (operation: BudgetOperationDTO) -> Unit,
+    onDismissRequest: () -> Unit,
+    operation: BudgetOperationDTO?
 ) {
+
+    val dialogName by remember {
+        operation?.let {
+            mutableStateOf("Edit operation")
+        } ?: run {
+            mutableStateOf("Create new operation")
+        }
+    }
+
+    var defaultOperation: BudgetOperationDTO by remember {
+        operation?.let {
+            mutableStateOf(operation)
+        } ?: run {
+            mutableStateOf(BudgetOperationDTO(-1, "", -1, -1, 0f))
+        }
+    }
 
     val saveButtonFocusRequester = remember { FocusRequester() }
 
-    var name by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(defaultOperation.name) }
     val nameFocusRequester = remember { FocusRequester() }
 
     val operationTypes = listOf("expense", "income")
-    var selectedType by remember { mutableStateOf(operationTypes[0]) }
+    var selectedType by remember {
+        if(defaultOperation.value < 0) {
+            defaultOperation = BudgetOperationDTO(
+                defaultOperation.id,
+                defaultOperation.name,
+                defaultOperation.budgetId,
+                defaultOperation.userId,
+                defaultOperation.value * -1
+            )
+            mutableStateOf(operationTypes[0])
+        } else
+            mutableStateOf(operationTypes[1])
+    }
 
-    var value by remember { mutableStateOf("") }
+    var value by remember { mutableStateOf(defaultOperation.value.toString()) }
     val valueFocusRequester = remember { FocusRequester() }
 
     AlertDialog(
@@ -62,7 +93,7 @@ fun AddEditOperationDialog(
                 topBar = {
                     TopAppBar(
                         title = {
-                            Text(text = "Add new operation")
+                            Text(text = dialogName)
                         },
                         actions = {
                             TextButton(
@@ -73,7 +104,28 @@ fun AddEditOperationDialog(
                                         value.toFloat() * -1
                                     else
                                         value.toFloat()
-                                    onSave(name, valueFloat)
+                                    //TODO: make operation constructors into single one
+                                    operation?.let {
+                                        onOperationEdition(
+                                            BudgetOperationDTO(
+                                                defaultOperation.id,
+                                                name,
+                                                defaultOperation.budgetId,
+                                                defaultOperation.userId,
+                                                valueFloat
+                                            )
+                                        )
+                                    } ?: kotlin.run {
+                                        onOperationCreation(
+                                            BudgetOperationDTO(
+                                                defaultOperation.id,
+                                                name,
+                                                defaultOperation.budgetId,
+                                                defaultOperation.userId,
+                                                valueFloat
+                                            )
+                                        )
+                                    }
                                 }
                             ) {
                                 Text("save")
@@ -160,11 +212,7 @@ fun AddEditOperationDialog(
                                 ),
                                 keyboardActions = KeyboardActions(
                                     onAny = {
-                                        val valueFloat = if (selectedType == operationTypes[0])
-                                            value.toFloat() * -1
-                                        else
-                                            value.toFloat()
-                                        onSave(name, valueFloat)
+                                        saveButtonFocusRequester.freeFocus()
                                     }
                                 )
                             )

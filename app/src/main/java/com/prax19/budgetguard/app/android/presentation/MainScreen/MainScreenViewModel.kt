@@ -75,7 +75,7 @@ class MainScreenViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 if(budgetDTO.id < 0)
-                    throw Exception("invalid budget id")
+                    throw Exception("invalid Budget id")
                 api.putBudget(auth, budgetDTO.id, budgetDTO)
             } catch (e: Exception) {
                 Log.e("MainScreenViewModel", "editExistingBudget: ", e)

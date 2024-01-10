@@ -35,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.prax19.budgetguard.app.android.data.model.Operation
 import com.prax19.budgetguard.app.android.presentation.ContextActions
 import com.prax19.budgetguard.app.android.presentation.Selectable
@@ -43,9 +42,7 @@ import com.prax19.budgetguard.app.android.presentation.Selectable
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun BudgetDetailsScreen(
-    navController: NavController
-) {
+fun BudgetDetailsScreen() {
     val viewModel: BudgetDetailsScreenViewModel = hiltViewModel()
     val budget = viewModel.budgetState.value.budget
     val isLoading = viewModel.budgetState.value.isLoading
@@ -73,15 +70,37 @@ fun BudgetDetailsScreen(
         when {
             openAddEditOperation.value ->
                 AddEditOperationDialog(
-                    onSave = { name, value ->
+                    onOperationCreation = { operation ->
                         viewModel.createOperation(
-                            Operation(-1, name, budget, budget.ownerId, value) //TODO: handle user
+                            Operation(
+                                operation.id,
+                                operation.name,
+                                budget,
+                                budget.ownerId,
+                                operation.value
+                            ) //TODO: handle user
                         )
                         openAddEditOperation.value = false
+                        onCloseContextAction()
+                    },
+                    onOperationEdition = {operation ->
+                        viewModel.editOperation(
+                            Operation(
+                                operation.id,
+                                operation.name,
+                                budget,
+                                budget.ownerId,
+                                operation.value
+                            ) //TODO: handle user
+                        )
+                        openAddEditOperation.value = false
+                        onCloseContextAction()
                     },
                     onDismissRequest = {
                         openAddEditOperation.value = false
-                    }
+                        onCloseContextAction()
+                    },
+                    operation = viewModel.getOperation(contextActionsOperationId)
                 )
         }
 
@@ -98,16 +117,14 @@ fun BudgetDetailsScreen(
                         ContextActions(
                             onClickEdit = {
                                 contextActionsOperationId?.let {
-                                    //TODO: operation editing
+                                    openAddEditOperation.value = true
                                 }
-                                onCloseContextAction()
                             },
                             onClickDelete = {
                                 contextActionsOperationId?.let {
                                     //TODO: add operation deletion dialog
                                     viewModel.deleteOperation(it)
                                 }
-                                onCloseContextAction()
                             },
                             contextActionsOperationId != null
                         )

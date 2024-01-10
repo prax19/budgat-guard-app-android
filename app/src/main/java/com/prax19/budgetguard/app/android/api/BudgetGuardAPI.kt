@@ -59,6 +59,14 @@ interface BudgetGuardApi {
         @Body operationDTO: BudgetOperationDTO
     )
 
+    @PUT("budget/{budgetId}/operation/{id}")
+    suspend fun putOperation(
+        @Header("Authorization") auth: String,
+        @Path("budgetId") budgetId: Long,
+        @Path("id") id: Long,
+        @Body operationDTO: BudgetOperationDTO
+    )
+
     @DELETE("budget/{budgetId}/operation/{id}")
     suspend fun deleteOperation(
         @Header("Authorization") auth: String,

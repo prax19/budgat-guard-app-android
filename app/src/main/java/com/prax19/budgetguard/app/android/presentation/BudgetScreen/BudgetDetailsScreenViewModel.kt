@@ -67,6 +67,33 @@ class BudgetDetailsScreenViewModel @Inject constructor(
         }
     }
 
+    // TODO: update to DTO as return
+    fun getOperation(id: Long?): BudgetOperationDTO? {
+        try {
+            id?.let {
+                if(id < 0)
+                    return null
+                val operations = budgetState.value.budget?.operations
+                operations?.let {
+                    for(operation: Operation in it) {
+                        if(operation.id == id)
+                            return BudgetOperationDTO(
+                                operation.id,
+                                operation.name,
+                                operation.budget.id,
+                                operation.userId,
+                                operation.value
+                            )
+                    }
+                }
+            }
+            return null
+        } catch (e: Exception) {
+            Log.e("BudgetDetailsScreenViewModel", "getOperation: ", e)
+            return null
+        }
+    }
+
     fun createOperation(operation: Operation) {
         try {
             val budget = budgetState.value.budget
@@ -94,6 +121,28 @@ class BudgetDetailsScreenViewModel @Inject constructor(
         }
     }
 
+    fun editOperation(operation: Operation) {
+        viewModelScope.launch {
+            try {
+                if(operation.id < 0)
+                    throw Exception("invalid BudgetOperation id")
+                //TODO: replace Operation model with BudgetOperationDTO as argument
+                api.putOperation(auth, operation.budget.id, operation.id,
+                    BudgetOperationDTO(
+                        operation.id,
+                        operation.name,
+                        operation.budget.id,
+                        operation.userId,
+                        operation.value
+                    )
+                )
+            } catch (e: Exception) {
+                Log.e("BudgetDetailsScreenViewModel", "editOperation: ", e)
+            }
+            refreshListOfOperations(operation.budget)
+        }
+    }
+
     fun deleteOperation(id: Long) {
         try {
             val budget = budgetState.value.budget
@@ -113,6 +162,7 @@ class BudgetDetailsScreenViewModel @Inject constructor(
 
     }
 
+    //TODO: get rid of this in order to make passing DTOs as an argument possible
     private suspend fun refreshListOfOperations(budget: Budget) {
         _budgetState.value = budgetState.value.copy(isLoading = true)
 
