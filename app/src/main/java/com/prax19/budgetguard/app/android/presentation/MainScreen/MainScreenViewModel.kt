@@ -5,7 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
+import com.prax19.budgetguard.app.android.data.model.Budget
 import com.prax19.budgetguard.app.android.repository.BudgetRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -15,8 +15,6 @@ import javax.inject.Inject
 class MainScreenViewModel @Inject constructor(
     private val repository: BudgetRepository
 ) : ViewModel() {
-
-    private val auth = "Basic cGF0cnlrLnBpcm9nQG8zNjUudXMuZWR1LnBsOnBhc3N3b3Jk"
 
     private val _state = mutableStateOf(ListOfBudgetsState())
     val state: State<ListOfBudgetsState> = _state
@@ -45,14 +43,14 @@ class MainScreenViewModel @Inject constructor(
     }
 
     //TODO: replace this with repository function
-    fun getBudgetById(id: Long?): BudgetDTO? {
+    fun getBudgetById(id: Long?): Budget? {
         try {
             id?.let{
                 if(id < 0)
                     return null
                 val budgets = state.value.budgets
                 budgets?.let {
-                    for(budget: BudgetDTO in it) {
+                    for(budget: Budget in it) {
                         if(budget.id == id)
                             return budget
                     }
@@ -65,10 +63,10 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    fun createNewBudget(budgetDTO: BudgetDTO) {
+    fun createNewBudget(budget: Budget) {
         viewModelScope.launch {
             try {
-                repository.postBudget(budgetDTO)
+                repository.postBudget(budget)
             } catch (e: Exception) {
                 Log.e("MainScreenViewModel", "createNewBudget: ", e)
             }
@@ -76,10 +74,10 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    fun editBudget(budgetDTO: BudgetDTO) {
+    fun editBudget(budget: Budget) {
         viewModelScope.launch {
             try {
-                repository.putBudget(budgetDTO)
+                repository.putBudget(budget)
             } catch (e: Exception) {
                 Log.e("MainScreenViewModel", "editExistingBudget: ", e)
             }
@@ -87,10 +85,10 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    fun deleteBudget(budgetDTO: BudgetDTO) {
+    fun deleteBudget(budget: Budget) {
         viewModelScope.launch {
             try {
-                repository.deleteBudget(budgetDTO)
+                repository.deleteBudget(budget)
             } catch (e: Exception) {
                 Log.e("MainScreenViewModel", "deleteBudget: ", e)
             }
@@ -99,7 +97,7 @@ class MainScreenViewModel @Inject constructor(
     }
 
     data class ListOfBudgetsState(
-        val budgets: List<BudgetDTO> ?= emptyList(),
+        val budgets: List<Budget> ?= emptyList(),
         val isLoading: Boolean = false
     )
 

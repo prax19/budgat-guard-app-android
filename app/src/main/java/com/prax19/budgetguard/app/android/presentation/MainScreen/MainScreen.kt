@@ -33,7 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
+import com.prax19.budgetguard.app.android.data.model.Budget
 import com.prax19.budgetguard.app.android.presentation.ContextActions
 import com.prax19.budgetguard.app.android.presentation.Selectable
 import com.prax19.budgetguard.app.android.util.Screen
@@ -101,26 +101,12 @@ fun MainScreen(navController: NavController) {
                 openAddEditBudget.value ->
                     AddEditBudgetDialog(
                         onBudgetCreation = { budget ->
-                            viewModel.createNewBudget(
-                                BudgetDTO(
-                                    budget.id,
-                                    budget.name,
-                                    budget.ownerId,
-                                    budget.operations
-                                ) //TODO: handle user
-                            )
+                            viewModel.createNewBudget(budget)
                             openAddEditBudget.value = false
                             onCloseContextAction()
                         },
                         onBudgetEdition = { budget ->
-                            viewModel.editBudget(
-                                BudgetDTO(
-                                    budget.id,
-                                    budget.name,
-                                    budget.ownerId,
-                                    budget.operations
-                                ) //TODO: handle user
-                            )
+                            viewModel.editBudget(budget)
                             openAddEditBudget.value = false
                             onCloseContextAction()
                         },
@@ -173,7 +159,7 @@ fun MainScreen(navController: NavController) {
 
 @Composable
 fun BudgetItem( //TODO: add more details to items
-    budget: BudgetDTO,
+    budget: Budget,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     selected: Boolean

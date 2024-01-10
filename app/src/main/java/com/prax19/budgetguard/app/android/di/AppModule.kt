@@ -18,8 +18,9 @@ object AppModule {
     @Provides
     @Singleton
     fun provideBudgetRepository(
-        api: BudgetGuardApi
-    ) = BudgetRepository(api)
+        api: BudgetGuardApi,
+        operationRepository: OperationRepository
+    ) = BudgetRepository(api, operationRepository)
 
     @Provides
     @Singleton

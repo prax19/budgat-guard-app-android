@@ -28,15 +28,16 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
+import com.prax19.budgetguard.app.android.data.model.Budget
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AddEditBudgetDialog(
-    onBudgetCreation: (newBudget: BudgetDTO) -> Unit,
-    onBudgetEdition: (editedBudget: BudgetDTO) -> Unit,
+    onBudgetCreation: (newBudget: Budget) -> Unit,
+    onBudgetEdition: (editedBudget: Budget) -> Unit,
     onDismissRequest: () -> Unit,
-    budget: BudgetDTO?
+    budget: Budget?
 ) {
 
     val dialogName by remember {
@@ -49,7 +50,14 @@ fun AddEditBudgetDialog(
 
     val defaultBudget: BudgetDTO by remember {
         budget?.let {
-            mutableStateOf(budget)
+            mutableStateOf(
+                BudgetDTO(
+                    budget.id,
+                    budget.name,
+                    budget.ownerId,
+                    emptyList()
+                )
+            )
         } ?: run {
             mutableStateOf(BudgetDTO(-1, "", -1, emptyList()))
         }
@@ -81,11 +89,11 @@ fun AddEditBudgetDialog(
                                 onClick = {
                                     //TODO: make budget constructors into single one
                                     val returnBudget =
-                                        BudgetDTO(
+                                        Budget(
                                             defaultBudget.id,
                                             name,
                                             defaultBudget.ownerId,
-                                            defaultBudget.operations
+                                            emptyList()
                                         )
                                     budget?.let {
                                         onBudgetEdition( returnBudget )

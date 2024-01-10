@@ -13,6 +13,7 @@ class OperationRepository @Inject constructor(
     private val api: BudgetGuardApi
 ) {
 
+    //TODO: handle user
     private val auth = "Basic cGF0cnlrLnBpcm9nQG8zNjUudXMuZWR1LnBsOnBhc3N3b3Jk"
 
     suspend fun getAllOperations(budget: Budget) : Resource<List<Operation>> {
