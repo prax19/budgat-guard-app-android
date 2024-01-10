@@ -39,6 +39,14 @@ fun AddEditBudgetDialog(
     budget: BudgetDTO?
 ) {
 
+    val dialogName by remember {
+        budget?.let {
+            mutableStateOf("Edit budget")
+        } ?: run {
+            mutableStateOf("Create new budget")
+        }
+    }
+
     val defaultBudget: BudgetDTO by remember {
         budget?.let {
             mutableStateOf(budget)
@@ -64,7 +72,7 @@ fun AddEditBudgetDialog(
                 topBar = {
                     TopAppBar(
                         title = {
-                            Text(text = "t")
+                            Text(text = dialogName)
                         },
                         actions = {
                             TextButton(
