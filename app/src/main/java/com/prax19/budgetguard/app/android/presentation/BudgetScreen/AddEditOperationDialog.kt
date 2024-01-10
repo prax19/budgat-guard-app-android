@@ -208,7 +208,7 @@ fun AddEditOperationDialog(
                                 ),
                                 keyboardActions = KeyboardActions(
                                     onAny = {
-                                        saveButtonFocusRequester.freeFocus()
+                                        saveButtonFocusRequester.requestFocus()
                                     }
                                 )
                             )
