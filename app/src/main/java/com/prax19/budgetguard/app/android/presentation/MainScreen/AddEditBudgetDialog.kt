@@ -80,26 +80,18 @@ fun AddEditBudgetDialog(
                                     .focusRequester(saveButtonFocusRequester),
                                 onClick = {
                                     //TODO: make budget constructors into single one
+                                    val returnBudget =
+                                        BudgetDTO(
+                                            defaultBudget.id,
+                                            name,
+                                            defaultBudget.ownerId,
+                                            defaultBudget.operations
+                                        )
                                     budget?.let {
-                                        onBudgetEdition(
-                                            BudgetDTO(
-                                                defaultBudget.id,
-                                                name,
-                                                defaultBudget.ownerId,
-                                                defaultBudget.operations
-                                            )
-                                        )
+                                        onBudgetEdition( returnBudget )
                                     } ?: kotlin.run {
-                                        onBudgetCreation(
-                                            BudgetDTO(
-                                                defaultBudget.id,
-                                                name,
-                                                defaultBudget.ownerId,
-                                                defaultBudget.operations
-                                            )
-                                        )
+                                        onBudgetCreation( returnBudget )
                                     }
-                                    //onBudgetCreation(defaultBudget)
                                 }
                             ) {
                                 Text("save")

@@ -79,7 +79,12 @@ fun AddEditOperationDialog(
             mutableStateOf(operationTypes[1])
     }
 
-    var value by remember { mutableStateOf(defaultOperation.value.toString()) }
+    var value by remember {
+        if(defaultOperation.value == 0f)
+            mutableStateOf("")
+        else
+            mutableStateOf(defaultOperation.value.toString())
+    }
     val valueFocusRequester = remember { FocusRequester() }
 
     AlertDialog(
@@ -104,27 +109,18 @@ fun AddEditOperationDialog(
                                         value.toFloat() * -1
                                     else
                                         value.toFloat()
-                                    //TODO: make operation constructors into single one
+                                    val returnOperation =
+                                        BudgetOperationDTO(
+                                            defaultOperation.id,
+                                            name,
+                                            defaultOperation.budgetId,
+                                            defaultOperation.userId,
+                                            valueFloat
+                                        )
                                     operation?.let {
-                                        onOperationEdition(
-                                            BudgetOperationDTO(
-                                                defaultOperation.id,
-                                                name,
-                                                defaultOperation.budgetId,
-                                                defaultOperation.userId,
-                                                valueFloat
-                                            )
-                                        )
+                                        onOperationEdition( returnOperation )
                                     } ?: kotlin.run {
-                                        onOperationCreation(
-                                            BudgetOperationDTO(
-                                                defaultOperation.id,
-                                                name,
-                                                defaultOperation.budgetId,
-                                                defaultOperation.userId,
-                                                valueFloat
-                                            )
-                                        )
+                                        onOperationCreation( returnOperation )
                                     }
                                 }
                             ) {
