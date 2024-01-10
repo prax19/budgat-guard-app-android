@@ -2,6 +2,7 @@ package com.prax19.budgetguard.app.android.di
 
 import com.prax19.budgetguard.app.android.api.BudgetGuardApi
 import com.prax19.budgetguard.app.android.repository.BudgetRepository
+import com.prax19.budgetguard.app.android.repository.OperationRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,6 +20,12 @@ object AppModule {
     fun provideBudgetRepository(
         api: BudgetGuardApi
     ) = BudgetRepository(api)
+
+    @Provides
+    @Singleton
+    fun provideOperationRepository(
+        api: BudgetGuardApi
+    ) = OperationRepository(api)
 
     @Provides
     @Singleton
