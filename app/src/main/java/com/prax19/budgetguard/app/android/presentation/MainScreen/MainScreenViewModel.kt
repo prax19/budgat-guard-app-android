@@ -5,15 +5,15 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.prax19.budgetguard.app.android.api.BudgetGuardApi
 import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
+import com.prax19.budgetguard.app.android.repository.BudgetRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
-    private val api: BudgetGuardApi
+    private val repository: BudgetRepository
 ) : ViewModel() {
 
     private val auth = "Basic cGF0cnlrLnBpcm9nQG8zNjUudXMuZWR1LnBsOnBhc3N3b3Jk"
@@ -22,15 +22,15 @@ class MainScreenViewModel @Inject constructor(
     val state: State<ListOfBudgetsState> = _state
 
     init {
-        getAllBudgets()
+        loadBudgets()
     }
 
-    fun getAllBudgets() {
+    fun loadBudgets() {
         viewModelScope.launch {
             try {
                 _state.value = state.value.copy(isLoading = true)
                 _state.value = state.value.copy(
-                    budgets = api.getAllBudgets(auth),
+                    budgets = repository.getAllBudgets().data,
                     isLoading = false
                 )
             } catch (e: Exception) {
@@ -40,7 +40,7 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    fun getBudget(id: Long?): BudgetDTO? {
+    fun getBudgetById(id: Long?): BudgetDTO? {
         try {
             id?.let{
                 if(id < 0)
@@ -63,35 +63,33 @@ class MainScreenViewModel @Inject constructor(
     fun createNewBudget(budgetDTO: BudgetDTO) {
         viewModelScope.launch {
             try {
-                api.postBudget(auth, budgetDTO)
+                repository.postBudget(budgetDTO)
             } catch (e: Exception) {
                 Log.e("MainScreenViewModel", "createNewBudget: ", e)
             }
-            suspend { getAllBudgets() }.invoke()
+            suspend { loadBudgets() }.invoke()
         }
     }
 
     fun editBudget(budgetDTO: BudgetDTO) {
         viewModelScope.launch {
             try {
-                if(budgetDTO.id < 0)
-                    throw Exception("invalid Budget id")
-                api.putBudget(auth, budgetDTO.id, budgetDTO)
+                repository.putBudget(budgetDTO)
             } catch (e: Exception) {
                 Log.e("MainScreenViewModel", "editExistingBudget: ", e)
             }
-            suspend { getAllBudgets() }.invoke()
+            suspend { loadBudgets() }.invoke()
         }
     }
 
-    fun deleteBudget(budgetId: Long) {
+    fun deleteBudget(budgetDTO: BudgetDTO) {
         viewModelScope.launch {
             try {
-                api.deleteBudget(auth, budgetId)
+                repository.deleteBudget(budgetDTO)
             } catch (e: Exception) {
                 Log.e("MainScreenViewModel", "deleteBudget: ", e)
             }
-            suspend { getAllBudgets() }.invoke()
+            suspend { loadBudgets() }.invoke()
         }
     }
 

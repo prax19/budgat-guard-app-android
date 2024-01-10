@@ -73,7 +73,7 @@ fun MainScreen(navController: NavController) {
                         onClickDelete = {
                             contextActionsBudgetId?.let {
                                 //TODO: add budget deletion dialog
-                                viewModel.deleteBudget(it)
+                                viewModel.deleteBudget(viewModel.getBudgetById(it)!!)
                             }
                         },
                         contextActionsBudgetId != null
@@ -128,7 +128,7 @@ fun MainScreen(navController: NavController) {
                             openAddEditBudget.value = false
                             onCloseContextAction()
                         },
-                        budget = viewModel.getBudget(contextActionsBudgetId)
+                        budget = viewModel.getBudgetById(contextActionsBudgetId)
                     )
             }
 
