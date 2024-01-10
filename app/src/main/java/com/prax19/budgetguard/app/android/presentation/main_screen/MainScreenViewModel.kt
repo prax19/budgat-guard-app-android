@@ -1,4 +1,4 @@
-package com.prax19.budgetguard.app.android.presentation.MainScreen
+package com.prax19.budgetguard.app.android.presentation.main_screen
 
 import android.util.Log
 import androidx.compose.runtime.State

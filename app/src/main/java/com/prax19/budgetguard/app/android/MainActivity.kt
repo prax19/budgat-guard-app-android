@@ -12,8 +12,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.prax19.budgetguard.app.android.presentation.BudgetScreen.BudgetDetailsScreen
-import com.prax19.budgetguard.app.android.presentation.MainScreen.MainScreen
+import com.prax19.budgetguard.app.android.presentation.budget_details.BudgetDetailsScreen
+import com.prax19.budgetguard.app.android.presentation.main_screen.MainScreen
 import com.prax19.budgetguard.app.android.ui.theme.BudgetGuardTheme
 import com.prax19.budgetguard.app.android.util.Screen
 import dagger.hilt.android.AndroidEntryPoint

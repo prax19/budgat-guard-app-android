@@ -1,4 +1,4 @@
-package com.prax19.budgetguard.app.android.presentation.BudgetScreen
+package com.prax19.budgetguard.app.android.presentation.budget_details
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -36,8 +36,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.prax19.budgetguard.app.android.data.model.Operation
-import com.prax19.budgetguard.app.android.presentation.ContextActions
-import com.prax19.budgetguard.app.android.presentation.Selectable
+import com.prax19.budgetguard.app.android.presentation.utils.ContextActions
+import com.prax19.budgetguard.app.android.presentation.utils.Selectable
 
 //TODO: prevent from entering empty data
 @OptIn(ExperimentalMaterial3Api::class)

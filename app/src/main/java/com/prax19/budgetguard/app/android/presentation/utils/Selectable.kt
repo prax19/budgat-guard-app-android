@@ -1,4 +1,4 @@
-package com.prax19.budgetguard.app.android.presentation
+package com.prax19.budgetguard.app.android.presentation.utils
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable

@@ -1,4 +1,4 @@
-package com.prax19.budgetguard.app.android.presentation.BudgetScreen
+package com.prax19.budgetguard.app.android.presentation.budget_details
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column

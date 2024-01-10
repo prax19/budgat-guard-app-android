@@ -1,4 +1,4 @@
-package com.prax19.budgetguard.app.android.presentation.MainScreen
+package com.prax19.budgetguard.app.android.presentation.main_screen
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -34,8 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.prax19.budgetguard.app.android.data.model.Budget
-import com.prax19.budgetguard.app.android.presentation.ContextActions
-import com.prax19.budgetguard.app.android.presentation.Selectable
+import com.prax19.budgetguard.app.android.presentation.utils.ContextActions
+import com.prax19.budgetguard.app.android.presentation.utils.Selectable
 import com.prax19.budgetguard.app.android.util.Screen
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
