@@ -68,10 +68,8 @@ class BudgetDetailsScreenViewModel @Inject constructor(
     }
 
     private fun refreshBudget() {
-        viewModelScope.launch {
-            budgetState.value.budget?.let {
-                loadBudget(it.id)
-            }
+        budgetState.value.budget?.let {
+            loadBudget(it.id)
         }
     }
 

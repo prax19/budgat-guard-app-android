@@ -40,6 +40,10 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
+    private fun refreshBudgets() {
+        loadBudgets()
+    }
+
     //TODO: replace this with repository function
     fun getBudgetById(id: Long?): BudgetDTO? {
         try {
@@ -68,7 +72,7 @@ class MainScreenViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("MainScreenViewModel", "createNewBudget: ", e)
             }
-            suspend { loadBudgets() }.invoke()
+            suspend { refreshBudgets() }.invoke()
         }
     }
 
@@ -90,7 +94,7 @@ class MainScreenViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("MainScreenViewModel", "deleteBudget: ", e)
             }
-            suspend { loadBudgets() }.invoke()
+            suspend { refreshBudgets() }.invoke()
         }
     }
 
