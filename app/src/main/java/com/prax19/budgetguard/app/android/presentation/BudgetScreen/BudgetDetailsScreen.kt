@@ -100,7 +100,7 @@ fun BudgetDetailsScreen() {
                         openAddEditOperation.value = false
                         onCloseContextAction()
                     },
-                    operation = viewModel.getOperation(contextActionsOperationId)
+                    operation = viewModel.getOperationById(contextActionsOperationId)
                 )
         }
 
@@ -123,7 +123,7 @@ fun BudgetDetailsScreen() {
                             onClickDelete = {
                                 contextActionsOperationId?.let {
                                     //TODO: add operation deletion dialog
-                                    viewModel.deleteOperation(it)
+                                    viewModel.deleteOperation(viewModel.getOperationById(contextActionsOperationId)!!)
                                 }
                             },
                             contextActionsOperationId != null

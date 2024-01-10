@@ -32,6 +32,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.prax19.budgetguard.app.android.data.dto.BudgetOperationDTO
+import com.prax19.budgetguard.app.android.data.model.Operation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -40,7 +41,7 @@ fun AddEditOperationDialog(
     onOperationCreation: (operation: BudgetOperationDTO) -> Unit,
     onOperationEdition: (operation: BudgetOperationDTO) -> Unit,
     onDismissRequest: () -> Unit,
-    operation: BudgetOperationDTO?
+    operation: Operation?
 ) {
 
     val dialogName by remember {
@@ -53,9 +54,18 @@ fun AddEditOperationDialog(
 
     var defaultOperation: BudgetOperationDTO by remember {
         operation?.let {
-            mutableStateOf(operation)
+            mutableStateOf(
+                BudgetOperationDTO(
+                    operation.id,
+                    operation.name,
+                    operation.budget.id,
+                    operation.userId,
+                    operation.value
+                )
+            )
         } ?: run {
-            mutableStateOf(BudgetOperationDTO(-1, "", -1, -1, 0f))
+            mutableStateOf(
+                BudgetOperationDTO(-1, "", -1, -1, 0f))
         }
     }
 

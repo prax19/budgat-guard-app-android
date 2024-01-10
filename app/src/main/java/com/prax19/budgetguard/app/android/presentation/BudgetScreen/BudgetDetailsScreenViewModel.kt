@@ -6,21 +6,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.prax19.budgetguard.app.android.api.BudgetGuardApi
-import com.prax19.budgetguard.app.android.data.dto.BudgetOperationDTO
 import com.prax19.budgetguard.app.android.data.model.Budget
 import com.prax19.budgetguard.app.android.data.model.Operation
+import com.prax19.budgetguard.app.android.repository.BudgetRepository
+import com.prax19.budgetguard.app.android.repository.OperationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class BudgetDetailsScreenViewModel @Inject constructor(
-    private val api: BudgetGuardApi,
+    private val operationsRepository: OperationRepository,
+    private val budgetRepository: BudgetRepository,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
-
-    private val auth = "Basic cGF0cnlrLnBpcm9nQG8zNjUudXMuZWR1LnBsOnBhc3N3b3Jk"
 
     private val _budgetState = mutableStateOf(BudgetState())
     val budgetState: State<BudgetState> = _budgetState
@@ -31,35 +30,36 @@ class BudgetDetailsScreenViewModel @Inject constructor(
         savedStateHandle.get<Long>("budgetId")?.let { budgetId ->
             if(budgetId != -1L) {
                 viewModelScope.launch {
-                    getBudget(budgetId)
+                    loadBudget(budgetId)
                 }
             }
         }
     }
 
-    fun getBudget(budgetId: Long) {
+    fun loadBudget(budgetId: Long) {
         viewModelScope.launch {
             try {
                 _budgetState.value = budgetState.value.copy(isLoading = true)
 
-                val budgetDTO = api.getBudget(
-                    auth,
-                    budgetId
-                )
+                var budget: Budget
+                budgetRepository.getBudget(budgetId).data?.let {
+                    budget = Budget(
+                        it.id,
+                        it.name,
+                        it.ownerId,
+                        emptyList()
+                    )
+                    operationsRepository.getAllOperations(budget).data?.let { operations ->
+                        budget = budget.copy(
+                            operations = operations
+                        )
+                    }
 
-                val budget = Budget(
-                    budgetDTO.id,
-                    budgetDTO.name,
-                    budgetDTO.ownerId,
-                    emptyList()
-                )
-
-                refreshListOfOperations(budget)
-
-                _budgetState.value = budgetState.value.copy(
-                    budget = budget,
-                    isLoading = false
-                )
+                    _budgetState.value = budgetState.value.copy(
+                        budget = budget
+                    )
+                }
+                _budgetState.value = budgetState.value.copy(isLoading = false)
             } catch (e: Exception) {
                 Log.e("BudgetDetailsScreenViewModel", "getBudget: ", e)
                 _budgetState.value = budgetState.value.copy(isLoading = false)
@@ -67,8 +67,16 @@ class BudgetDetailsScreenViewModel @Inject constructor(
         }
     }
 
+    private fun refreshBudget() {
+        viewModelScope.launch {
+            budgetState.value.budget?.let {
+                loadBudget(it.id)
+            }
+        }
+    }
+
     // TODO: update to DTO as return
-    fun getOperation(id: Long?): BudgetOperationDTO? {
+    fun getOperationById(id: Long?): Operation? {
         try {
             id?.let {
                 if(id < 0)
@@ -77,13 +85,7 @@ class BudgetDetailsScreenViewModel @Inject constructor(
                 operations?.let {
                     for(operation: Operation in it) {
                         if(operation.id == id)
-                            return BudgetOperationDTO(
-                                operation.id,
-                                operation.name,
-                                operation.budget.id,
-                                operation.userId,
-                                operation.value
-                            )
+                            return operation
                     }
                 }
             }
@@ -95,97 +97,55 @@ class BudgetDetailsScreenViewModel @Inject constructor(
     }
 
     fun createOperation(operation: Operation) {
-        try {
-            val budget = budgetState.value.budget
-            budget?.let {
-                val operationDTO = BudgetOperationDTO(
-                    -1,
-                    operation.name,
-                    it.id,
-                    operation.userId,
-                    operation.value
-                )
-                viewModelScope.launch {
-                    api.postBudgetOperation(
-                        auth,
-                        operationDTO.budgetId,
-                        operationDTO
+        viewModelScope.launch {
+            try {
+                _budgetState.value = budgetState.value.copy(isLoading = true)
+                budgetState.value.budget?.let {
+                    val newBg = operationsRepository.postOperation(
+                        it, operation
                     )
-
-                    refreshListOfOperations(operation.budget)
-
+                    suspend { refreshBudget() }.invoke() // TODO: test if it is necessary
                 }
+                _budgetState.value = budgetState.value.copy(isLoading = false)
+            } catch (e: Exception) {
+                Log.e("BudgetDetailsScreenViewModel", "createOperation: ", e)
+                _budgetState.value = budgetState.value.copy(isLoading = false)
             }
-        } catch (e: Exception) {
-            Log.e("BudgetDetailsScreenViewModel", "createOperation: ", e)
         }
     }
 
     fun editOperation(operation: Operation) {
         viewModelScope.launch {
             try {
-                if(operation.id < 0)
-                    throw Exception("invalid BudgetOperation id")
-                //TODO: replace Operation model with BudgetOperationDTO as argument
-                api.putOperation(auth, operation.budget.id, operation.id,
-                    BudgetOperationDTO(
-                        operation.id,
-                        operation.name,
-                        operation.budget.id,
-                        operation.userId,
-                        operation.value
-                    )
-                )
+                _budgetState.value = budgetState.value.copy(isLoading = true)
+                budgetState.value.budget?.let {
+                    operationsRepository.putOperations(it, operation)
+                    suspend { refreshBudget() }.invoke() // TODO: test if it is necessary
+                }
+                _budgetState.value = budgetState.value.copy(isLoading = false)
             } catch (e: Exception) {
                 Log.e("BudgetDetailsScreenViewModel", "editOperation: ", e)
+                _budgetState.value = budgetState.value.copy(isLoading = false)
             }
-            refreshListOfOperations(operation.budget)
         }
     }
 
-    fun deleteOperation(id: Long) {
-        try {
-            val budget = budgetState.value.budget
-            budget?.let {
-                viewModelScope.launch {
-                    api.deleteOperation(
-                        auth,
-                        it.id,
-                        id
-                    )
-                    refreshListOfOperations(budget)
+    fun deleteOperation(operation: Operation) {
+        viewModelScope.launch {
+            try {
+                _budgetState.value = budgetState.value.copy(isLoading = true)
+                budgetState.value.budget?.let {
+                    Log.e(it.name, operation.name)
+                    operationsRepository.deleteOperation(it, operation)
+                    suspend { refreshBudget() }.invoke()
                 }
+                _budgetState.value = budgetState.value.copy(isLoading = false)
+            } catch (e: Exception) {
+                Log.e("BudgetDetailsScreenViewModel", "deleteOperation: ", e)
+                _budgetState.value = budgetState.value.copy(isLoading = false)
             }
-        } catch (e: Exception) {
-            Log.e("BudgetDetailsScreenViewModel", "deleteOperation: ", e)
         }
 
-    }
-
-    //TODO: get rid of this in order to make passing DTOs as an argument possible
-    private suspend fun refreshListOfOperations(budget: Budget) {
-        _budgetState.value = budgetState.value.copy(isLoading = true)
-
-        val operationsDTO: List<BudgetOperationDTO> = api.getBudgetOperations(
-            auth,
-            budget.id
-        )
-
-        val operations: List<Operation> = operationsDTO.map { operation ->
-            Operation(
-                operation.id,
-                operation.name,
-                budget,
-                operation.userId,
-                operation.value
-            )
-        }
-        budget.operations = operations
-
-        _budgetState.value = budgetState.value.copy(
-            budget = budget,
-            isLoading = false
-        )
     }
 
     data class BudgetState(
