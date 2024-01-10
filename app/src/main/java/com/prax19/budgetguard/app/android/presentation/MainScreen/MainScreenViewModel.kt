@@ -71,6 +71,19 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
+    fun editBudget(budgetDTO: BudgetDTO) {
+        viewModelScope.launch {
+            try {
+                if(budgetDTO.id < 0)
+                    throw Exception("invalid budget id")
+                api.putBudget(auth, budgetDTO.id, budgetDTO)
+            } catch (e: Exception) {
+                Log.e("MainScreenViewModel", "editExistingBudget: ", e)
+            }
+            suspend { getAllBudgets() }.invoke()
+        }
+    }
+
     fun deleteBudget(budgetId: Long) {
         viewModelScope.launch {
             try {

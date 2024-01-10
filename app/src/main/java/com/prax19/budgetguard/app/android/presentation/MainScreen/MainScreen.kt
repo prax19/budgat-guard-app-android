@@ -67,7 +67,6 @@ fun MainScreen(navController: NavController) {
                     ContextActions(
                         onClickEdit = {
                             contextActionsBudgetId?.let {
-                                //TODO: budget editing
                                 openAddEditBudget.value = true
                             }
                         },
@@ -113,8 +112,17 @@ fun MainScreen(navController: NavController) {
                             openAddEditBudget.value = false
                             onCloseContextAction()
                         },
-                        onBudgetEdition = {
-
+                        onBudgetEdition = { budget ->
+                            viewModel.editBudget(
+                                BudgetDTO(
+                                    budget.id,
+                                    budget.name,
+                                    budget.ownerId,
+                                    budget.operations
+                                ) //TODO: handle user
+                            )
+                            openAddEditBudget.value = false
+                            onCloseContextAction()
                         },
                         onDismissRequest = {
                             openAddEditBudget.value = false

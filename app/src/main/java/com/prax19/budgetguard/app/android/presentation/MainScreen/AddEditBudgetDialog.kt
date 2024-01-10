@@ -83,7 +83,7 @@ fun AddEditBudgetDialog(
                                         onBudgetEdition(
                                             BudgetDTO(
                                                 defaultBudget.id,
-                                                defaultBudget.name,
+                                                name,
                                                 defaultBudget.ownerId,
                                                 defaultBudget.operations
                                             )

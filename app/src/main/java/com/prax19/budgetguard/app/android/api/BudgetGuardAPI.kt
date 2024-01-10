@@ -7,6 +7,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface BudgetGuardApi {
@@ -18,7 +19,14 @@ interface BudgetGuardApi {
     @POST("budget")
     suspend fun postBudget(
         @Header("Authorization") auth: String,
-        @Body operationDTO: BudgetDTO
+        @Body budgetDTO: BudgetDTO
+    )
+
+    @PUT("budget/{id}")
+    suspend fun putBudget(
+        @Header("Authorization") auth: String,
+        @Path("id") id: Long,
+        @Body budgetDTO: BudgetDTO
     )
 
     @GET("budget/{id}")
