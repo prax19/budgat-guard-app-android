@@ -34,6 +34,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.prax19.budgetguard.app.android.data.dto.BudgetOperationDTO
 import com.prax19.budgetguard.app.android.data.model.Operation
 
+//TODO: prevent from entering empty data
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable

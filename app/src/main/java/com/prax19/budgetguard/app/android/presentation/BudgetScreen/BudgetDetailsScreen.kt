@@ -39,6 +39,7 @@ import com.prax19.budgetguard.app.android.data.model.Operation
 import com.prax19.budgetguard.app.android.presentation.ContextActions
 import com.prax19.budgetguard.app.android.presentation.Selectable
 
+//TODO: prevent from entering empty data
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
