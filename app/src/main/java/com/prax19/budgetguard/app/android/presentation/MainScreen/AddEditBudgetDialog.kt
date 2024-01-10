@@ -39,9 +39,12 @@ fun AddEditBudgetDialog(
     budget: BudgetDTO?
 ) {
 
-    var defaultBudget = BudgetDTO(-1, "", -1, emptyList())
-    budget?.let {
-        defaultBudget = budget
+    val defaultBudget: BudgetDTO by remember {
+        budget?.let {
+            mutableStateOf(budget)
+        } ?: run {
+            mutableStateOf(BudgetDTO(-1, "", -1, emptyList()))
+        }
     }
 
     val saveButtonFocusRequester = remember { FocusRequester() }
@@ -61,7 +64,7 @@ fun AddEditBudgetDialog(
                 topBar = {
                     TopAppBar(
                         title = {
-                            Text(text = "Add new budget")
+                            Text(text = "t")
                         },
                         actions = {
                             TextButton(
