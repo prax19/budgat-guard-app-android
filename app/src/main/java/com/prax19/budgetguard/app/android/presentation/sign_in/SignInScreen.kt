@@ -183,7 +183,6 @@ fun SignInScreen(
                 content = {
                     Text("Sign up")
                 },
-                enabled = !isLoginInputBlank.value && !isPasswordInputBlank.value,
                 onClick = {
                     navController.navigate(Screen.EditUserDetailsScreen.route)
                 }

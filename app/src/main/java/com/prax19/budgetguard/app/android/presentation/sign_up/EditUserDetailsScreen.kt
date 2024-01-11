@@ -12,8 +12,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -28,6 +33,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -42,11 +50,22 @@ fun EditUserDetailsScreen(
 
     val viewModel: EditUserDetailsViewModel = hiltViewModel()
 
+    var login by remember { mutableStateOf("") }
+    val loginInputFocusRequester = remember { FocusRequester() }
+    val isLoginInputBlank = remember { mutableStateOf(true) }
+
+    var password by remember { mutableStateOf("") }
+    val passwordInputFocusRequester = remember { FocusRequester() }
+    val isPasswordInputBlank = remember { mutableStateOf(true) }
+    val isPasswordHidden = remember { mutableStateOf(true) }
+
     var name by remember { mutableStateOf("") }
     val nameInputFocusRequester = remember { FocusRequester() }
+    val isNameInputBlank = remember { mutableStateOf(true) }
 
     var surname by remember { mutableStateOf("") }
     val surnameInputFocusRequester = remember { FocusRequester() }
+    val isSurnameInputBlank = remember { mutableStateOf(true) }
 
     val saveButtonFocusRequester = remember { FocusRequester() }
 
@@ -63,6 +82,87 @@ fun EditUserDetailsScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(loginInputFocusRequester),
+                label = {
+                    Text(text = "Login")
+                },
+                singleLine = true,
+                value = login,
+                onValueChange = {text ->
+                    login = text
+                    isLoginInputBlank.value = text.isBlank()
+                    if(text.isBlank()) password = ""
+                },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next,
+                    capitalization = KeyboardCapitalization.None
+                ),
+                keyboardActions = KeyboardActions(
+                    onAny = {
+                        passwordInputFocusRequester.requestFocus()
+                    }
+                )
+            )
+
+            Spacer(modifier = Modifier
+                .size(8.dp))
+
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(passwordInputFocusRequester),
+                label = {
+                    Text(text = "Password")
+                },
+                enabled = !isLoginInputBlank.value,
+                singleLine = true,
+                value = password,
+                onValueChange = {text ->
+                    password = text
+                    isPasswordInputBlank.value = text.isBlank()
+                },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Done,
+                    capitalization = KeyboardCapitalization.None,
+                    keyboardType = KeyboardType.Password
+                ),
+                keyboardActions = KeyboardActions(
+                    onAny = {
+                        nameInputFocusRequester.requestFocus()
+                    }
+                ),
+                visualTransformation =
+                if(isPasswordHidden.value)
+                    PasswordVisualTransformation()
+                else
+                    VisualTransformation.None,
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            isPasswordHidden.value = !isPasswordHidden.value
+                        },
+                        enabled = !isLoginInputBlank.value,
+                        content = {
+                            if(isPasswordHidden.value)
+                                Icon(
+                                    imageVector = Icons.Filled.Visibility,
+                                    contentDescription = "hide_show_password"
+                                )
+                            else
+                                Icon(
+                                    imageVector = Icons.Filled.VisibilityOff,
+                                    contentDescription = "hide_show_password"
+                                )
+                        }
+                    )
+                }
+            )
+
+            Spacer(modifier = Modifier
+                .size(8.dp))
 
             OutlinedTextField(
                 modifier = Modifier
@@ -71,10 +171,12 @@ fun EditUserDetailsScreen(
                 label = {
                         Text(text = "Name")
                 },
+                enabled = !isPasswordInputBlank.value,
                 singleLine = true,
                 value = name,
                 onValueChange = {text ->
                     name = text
+                    isNameInputBlank.value = text.isBlank()
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Next,
@@ -87,6 +189,9 @@ fun EditUserDetailsScreen(
                 )
             )
 
+            Spacer(modifier = Modifier
+                .size(8.dp))
+
             OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -94,10 +199,12 @@ fun EditUserDetailsScreen(
                 label = {
                     Text(text = "Surname")
                 },
+                enabled = !isPasswordInputBlank.value,
                 singleLine = true,
                 value = surname,
                 onValueChange = {text ->
                     surname = text
+                    isSurnameInputBlank.value = text.isBlank()
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Next,
@@ -111,21 +218,20 @@ fun EditUserDetailsScreen(
             )
 
             Spacer(modifier = Modifier
-                .size(8.dp))
-
-
-
-            Spacer(modifier = Modifier
                 .size(16.dp))
 
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .focusRequester(saveButtonFocusRequester)
-                ,
+                    .focusRequester(saveButtonFocusRequester),
                 content = {
                           Text("Save")
                 },
+                enabled =
+                    !isLoginInputBlank.value &&
+                    !isPasswordInputBlank.value &&
+                    !isNameInputBlank.value &&
+                    !isSurnameInputBlank.value,
                 onClick = {
                     navController.navigate(Screen.MainScreen.route) {
                         popUpTo(navController.graph.id) {
