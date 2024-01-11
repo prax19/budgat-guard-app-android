@@ -15,6 +15,7 @@ import androidx.navigation.navArgument
 import com.prax19.budgetguard.app.android.presentation.budget_details.BudgetDetailsScreen
 import com.prax19.budgetguard.app.android.presentation.main_screen.MainScreen
 import com.prax19.budgetguard.app.android.presentation.sign_in.SignInScreen
+import com.prax19.budgetguard.app.android.presentation.sign_up.EditUserDetailsScreen
 import com.prax19.budgetguard.app.android.ui.theme.BudgetGuardTheme
 import com.prax19.budgetguard.app.android.util.Screen
 import dagger.hilt.android.AndroidEntryPoint
@@ -58,6 +59,9 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(route = Screen.SignInScreen.route) {
                             SignInScreen(navConstoller)
+                        }
+                        composable(route = Screen.EditUserDetailsScreen.route) {
+                            EditUserDetailsScreen(navConstoller)
                         }
                     }
                 }

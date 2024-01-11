@@ -185,7 +185,7 @@ fun SignInScreen(
                 },
                 enabled = !isLoginInputBlank.value && !isPasswordInputBlank.value,
                 onClick = {
-                    navController.navigate(Screen.MainScreen.route)
+                    navController.navigate(Screen.EditUserDetailsScreen.route)
                 }
             )
 
