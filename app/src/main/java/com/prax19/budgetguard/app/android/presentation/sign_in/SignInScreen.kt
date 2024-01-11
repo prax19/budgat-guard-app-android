@@ -25,12 +25,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -51,16 +49,16 @@ fun SignInScreen(
 
     val viewModel: SignInViewModel = hiltViewModel()
 
-    var login by remember { mutableStateOf("") }
-    val loginInputFocusRequester = remember { FocusRequester() }
-    val isLoginInputBlank = remember { mutableStateOf(true) }
+    var login by remember { viewModel.login }
+    val loginInputFocusRequester = remember { viewModel.loginInputFocusRequester }
+    val isLoginInputBlank = remember { viewModel.isLoginInputBlank }
 
-    var password by remember { mutableStateOf("") }
-    val passwordInputFocusRequester = remember { FocusRequester() }
-    val isPasswordInputBlank = remember { mutableStateOf(true) }
-    val isPasswordHidden = remember { mutableStateOf(true) }
+    var password by remember { viewModel.password }
+    val passwordInputFocusRequester = remember { viewModel.passwordInputFocusRequester }
+    val isPasswordInputBlank = remember { viewModel.isPasswordInputBlank }
+    val isPasswordHidden = remember { viewModel.isPasswordHidden }
 
-    val loginButtonFocusRequester = remember { FocusRequester() }
+    val loginButtonFocusRequester = remember { viewModel.loginButtonFocusRequester }
 
     Scaffold(
 
