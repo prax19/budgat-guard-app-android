@@ -2,6 +2,7 @@ package com.prax19.budgetguard.app.android.api
 
 import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
 import com.prax19.budgetguard.app.android.data.dto.BudgetOperationDTO
+import com.prax19.budgetguard.app.android.data.dto.user.UserDTO
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -15,6 +16,12 @@ interface BudgetGuardApi {
     companion object {
         const val BASE_URL = "http://192.168.0.205:8080/api/v1/"
     }
+
+    @POST("user/register")
+    suspend fun registerUser(
+        @Header("X-API-KEY") apiKey: String,
+        @Body userDTO: UserDTO
+    )
 
     @POST("budget")
     suspend fun postBudget(
