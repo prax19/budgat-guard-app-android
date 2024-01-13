@@ -24,9 +24,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRequester
@@ -49,16 +47,11 @@ fun SignInScreen(
 
     val viewModel: SignInViewModel = hiltViewModel()
 
-    var login by remember { viewModel.login }
     val loginInputFocusRequester = remember { viewModel.loginInputFocusRequester }
-    val isLoginInputBlank = remember { viewModel.isLoginInputBlank }
-
-    var password by remember { viewModel.password }
     val passwordInputFocusRequester = remember { viewModel.passwordInputFocusRequester }
-    val isPasswordInputBlank = remember { viewModel.isPasswordInputBlank }
-    val isPasswordHidden = remember { viewModel.isPasswordHidden }
-
     val loginButtonFocusRequester = remember { viewModel.loginButtonFocusRequester }
+
+    val state = viewModel.state
 
     Scaffold(
 
@@ -82,11 +75,9 @@ fun SignInScreen(
                         Text(text = "Login")
                 },
                 singleLine = true,
-                value = login,
+                value = state.login,
                 onValueChange = {text ->
-                    login = text
-                    isLoginInputBlank.value = text.isBlank()
-                    if(text.isBlank()) password = ""
+                    viewModel.onEvent(SignInUiEvent.UsernameChanged(text))
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Next,
@@ -109,12 +100,11 @@ fun SignInScreen(
                 label = {
                     Text(text = "Password")
                 },
-                enabled = !isLoginInputBlank.value,
+                enabled = state.isPasswordEnabled,
                 singleLine = true,
-                value = password,
+                value = state.password,
                 onValueChange = {text ->
-                    password = text
-                    isPasswordInputBlank.value = text.isBlank()
+                    viewModel.onEvent(SignInUiEvent.PasswordChanged(text))
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done,
@@ -127,18 +117,18 @@ fun SignInScreen(
                     }
                 ),
                 visualTransformation =
-                    if(isPasswordHidden.value)
+                    if(state.isPasswordHidden)
                         PasswordVisualTransformation()
                     else
                         VisualTransformation.None,
                 trailingIcon = {
                     IconButton(
                         onClick = {
-                            isPasswordHidden.value = !isPasswordHidden.value
+                            viewModel.onEvent(SignInUiEvent.ChangePasswordVisibility)
                         },
-                        enabled = !isLoginInputBlank.value,
+                        enabled = state.isPasswordEnabled,
                         content = {
-                            if(isPasswordHidden.value)
+                            if(state.isPasswordHidden)
                                 Icon(
                                     imageVector = Icons.Filled.Visibility,
                                     contentDescription = "hide_show_password"
@@ -162,9 +152,9 @@ fun SignInScreen(
                     .focusRequester(loginButtonFocusRequester)
                 ,
                 content = {
-                          Text("Sign in")
+                      Text("Sign in")
                 },
-                enabled = !isLoginInputBlank.value && !isPasswordInputBlank.value,
+                enabled = state.isFormComplete,
                 onClick = {
                     viewModel.signIn()
                     navController.navigate(Screen.MainScreen.route) {

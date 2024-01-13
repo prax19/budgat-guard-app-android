@@ -1,7 +1,8 @@
 package com.prax19.budgetguard.app.android.presentation.sign_in
 
-import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,30 +17,71 @@ class SignInViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ): ViewModel() {
 
-    var login = mutableStateOf("")
+    var state by mutableStateOf(SignInState())
+
     val loginInputFocusRequester = FocusRequester()
-    val isLoginInputBlank = mutableStateOf(true)
-
-    var password = mutableStateOf("")
     val passwordInputFocusRequester = FocusRequester()
-    val isPasswordInputBlank = mutableStateOf(true)
-    val isPasswordHidden = mutableStateOf(true)
-
     val loginButtonFocusRequester = FocusRequester()
 
-    fun signIn() {
-        viewModelScope.launch {
-            try {
-                authRepository.signIn(
-                    Credentials.SignIn(
-                        login.value,
-                        password.value
+    fun onEvent(event: SignInUiEvent) {
+        when(event) {
+            is SignInUiEvent.UsernameChanged -> {
+                state = state.copy(login = event.value)
+                if(state.login.isBlank()) {
+                    state = state.copy(
+                        isPasswordEnabled = false,
+                        isFormComplete = false
                     )
-                )
-            } catch (e: Exception) {
-                Log.e("EditUserDetailsViewModel", "signIn: ", e)
+                } else {
+                    state = state.copy(
+                        isPasswordEnabled = true,
+                        isFormComplete =
+                            state.password.isNotBlank()
+                    )
+                }
+            }
+            is SignInUiEvent.PasswordChanged -> {
+                state = state.copy(password = event.value)
+                if(state.password.isBlank()) {
+                    state = state.copy(
+                        isFormComplete = false,
+                    )
+                } else {
+                    state = state.copy(
+                        isFormComplete =
+                            state.login.isNotBlank()
+                    )
+                }
+            }
+            is SignInUiEvent.ChangePasswordVisibility -> {
+                state = state.copy(isPasswordHidden = !state.isPasswordHidden)
+            }
+            is SignInUiEvent.SignIn -> {
+
             }
         }
     }
+
+    fun signIn() {
+        viewModelScope.launch {
+            state = state.copy(isLoading = true)
+            authRepository.signIn(
+                Credentials.SignIn(
+                    state.login,
+                    state.password
+                )
+            )
+            state = state.copy(isLoading = false)
+        }
+    }
+
+    data class SignInState(
+        val isLoading: Boolean = false,
+        val login: String = "",
+        val password: String = "",
+        val isPasswordEnabled: Boolean = false,
+        val isPasswordHidden: Boolean = true,
+        val isFormComplete: Boolean = false
+    )
 
 }
