@@ -1,6 +1,10 @@
 package com.prax19.budgetguard.app.android.di
 
+import android.app.Application
+import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
 import com.prax19.budgetguard.app.android.api.BudgetGuardApi
+import com.prax19.budgetguard.app.android.repository.AuthRepository
 import com.prax19.budgetguard.app.android.repository.BudgetRepository
 import com.prax19.budgetguard.app.android.repository.OperationRepository
 import com.prax19.budgetguard.app.android.repository.UserRepository
@@ -16,6 +20,14 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+
+    @Provides
+    @Singleton
+    fun providesAuthRepository(
+        api: BudgetGuardApi,
+        preferences: SharedPreferences
+    ) = AuthRepository(api, preferences)
+
     @Provides
     @Singleton
     fun provideUserRepository(
@@ -26,14 +38,22 @@ object AppModule {
     @Singleton
     fun provideBudgetRepository(
         api: BudgetGuardApi,
+        authRepository: AuthRepository,
         operationRepository: OperationRepository
-    ) = BudgetRepository(api, operationRepository)
+    ) = BudgetRepository(api, authRepository, operationRepository)
 
     @Provides
     @Singleton
     fun provideOperationRepository(
-        api: BudgetGuardApi
-    ) = OperationRepository(api)
+        api: BudgetGuardApi,
+        authRepository: AuthRepository,
+    ) = OperationRepository(api, authRepository)
+
+    @Provides
+    @Singleton
+    fun providesSharedPref(app: Application): SharedPreferences {
+        return app.getSharedPreferences("prefs", MODE_PRIVATE)
+    }
 
     @Provides
     @Singleton
