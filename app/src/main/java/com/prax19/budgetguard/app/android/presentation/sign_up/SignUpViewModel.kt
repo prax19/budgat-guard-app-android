@@ -37,41 +37,63 @@ class SignUpViewModel @Inject constructor(
                 state = state.copy(login = event.value)
                 if(state.login.isBlank()) {
                     state = state.copy(
-                        isPasswordEnabled = false
+                        isPasswordEnabled = false,
+                        isFormComplete = false
                     )
                 } else {
                     state = state.copy(
-                        isPasswordEnabled = true
+                        isPasswordEnabled = true,
+                        isFormComplete =
+                            state.login.isNotBlank() &&
+                            state.password.isNotBlank() &&
+                            state.name.isNotBlank() &&
+                            state.surname.isNotBlank()
                     )
                 }
             }
             is SignUpUiEvent.PasswordChanged -> {
                 state = state.copy(password = event.value)
                 if(state.password.isBlank()) {
-                    state = state.copy(
+                        state = state.copy(
                         isNameEnabled = false,
-                        isSurnameEnabled = false
+                        isSurnameEnabled = false,
+                        isFormComplete = false
                     )
                 } else {
                     state = state.copy(
                         isNameEnabled = true,
-                        isSurnameEnabled = true
+                        isSurnameEnabled = true,
+                        isFormComplete =
+                            state.login.isNotBlank() &&
+                            state.password.isNotBlank() &&
+                            state.name.isNotBlank() &&
+                            state.surname.isNotBlank()
                     )
                 }
             }
             is SignUpUiEvent.NameChanged -> {
-                state = state.copy(name = event.value)
-                if(state.name.isBlank() || state.surname.isBlank())
-                    state = state.copy(isFormComplete = false)
-                else
-                    state = state.copy(isFormComplete = true)
+                state = state.copy(
+                    name = event.value
+                )
+                state = state.copy(
+                    isFormComplete =
+                    state.login.isNotBlank() &&
+                            state.password.isNotBlank() &&
+                            state.name.isNotBlank() &&
+                            state.surname.isNotBlank()
+                )
             }
             is SignUpUiEvent.SurnameChanged -> {
-                state = state.copy(surname = event.value)
-                if(state.name.isBlank() || state.surname.isBlank())
-                    state = state.copy(isFormComplete = false)
-                else
-                    state = state.copy(isFormComplete = true)
+                state = state.copy(
+                    surname = event.value
+                )
+                state = state.copy(
+                    isFormComplete =
+                    state.login.isNotBlank() &&
+                            state.password.isNotBlank() &&
+                            state.name.isNotBlank() &&
+                            state.surname.isNotBlank()
+                )
             }
             is SignUpUiEvent.ChangePasswordVisibility -> {
                 state = state.copy(isPasswordHidden = !state.isPasswordHidden)
