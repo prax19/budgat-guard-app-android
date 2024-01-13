@@ -1,5 +1,6 @@
 package com.prax19.budgetguard.app.android.repository
 
+import android.util.Log
 import com.prax19.budgetguard.app.android.api.BudgetGuardApi
 import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
@@ -50,7 +51,8 @@ class BudgetRepository @Inject constructor(
                 it.copy(operations = operationRepository.getAllOperations(it).data!!)
             }
         } catch (e: Exception) {
-            return Resource.Error("An error occurred during loading list of budgets.")
+            Log.e("BudgetRepository", "getAllBudgets: ", e)
+            return Resource.Error()
         }
         return Resource.Success(response)
     }
@@ -70,7 +72,8 @@ class BudgetRepository @Inject constructor(
                 it.copy(operations = operationRepository.getAllOperations(it).data!!)
             }
         } catch (e: Exception) {
-            return Resource.Error("An error occurred during loading of budget.")
+            Log.e("BudgetRepository", "getBudget: ", e)
+            return Resource.Error()
         }
         return Resource.Success(response)
     }
@@ -86,7 +89,8 @@ class BudgetRepository @Inject constructor(
                 )
             )
         } catch (e: Exception) {
-            return Resource.Error("An error occurred during posting the budget.")
+            Log.e("BudgetRepository", "postBudget: ", e)
+            return Resource.Error()
         }
         return Resource.Success("Budget successfully created!")
     }
@@ -104,7 +108,8 @@ class BudgetRepository @Inject constructor(
                 )
             )
         } catch (e: Exception) {
-            return Resource.Error("An error occurred during posting the budget.")
+            Log.e("BudgetRepository", "putBudget: ", e)
+            return Resource.Error()
         }
         return Resource.Success("Budget successfully updated!")
     }
@@ -113,7 +118,8 @@ class BudgetRepository @Inject constructor(
         try {
             api.deleteBudget(token, budget.id)
         } catch (e: Exception) {
-            return Resource.Error("An error occurred during posting the budget.")
+            Log.e("BudgetRepository", "deleteBudget: ", e)
+            return Resource.Error()
         }
         return Resource.Success("Budget successfully deleted!")
     }

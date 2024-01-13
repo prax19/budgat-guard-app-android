@@ -1,5 +1,6 @@
 package com.prax19.budgetguard.app.android.repository
 
+import android.util.Log
 import com.prax19.budgetguard.app.android.api.BudgetGuardApi
 import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.data.dto.BudgetOperationDTO
@@ -47,7 +48,8 @@ class OperationRepository @Inject constructor(
             }
 
         } catch (e: Exception) {
-            return Resource.Error("An error occurred during loading list of BudgetOperations.")
+            Log.e("OperationRepository", "getAllOperations: ", e)
+            return Resource.Error()
         }
         return Resource.Success(response)
     }
@@ -68,7 +70,8 @@ class OperationRepository @Inject constructor(
                 operations = budget.operations + operation
             )
         } catch (e: Exception) {
-            return Resource.Error("An error occurred during posting the BudgetOperation.")
+            Log.e("OperationRepository", "postOperation: ", e)
+            return Resource.Error()
         }
         return Resource.Success(response)
     }
@@ -88,7 +91,8 @@ class OperationRepository @Inject constructor(
                 )
             )
         } catch (e: Exception) {
-            return Resource.Error("An error occurred during updating BudgetOperation.")
+            Log.e("OperationRepository", "putOperations: ", e)
+            return Resource.Error()
         }
         return Resource.Success("BudgetOperation successfully updated!")
     }
@@ -97,7 +101,8 @@ class OperationRepository @Inject constructor(
         try {
             api.deleteOperation(token, budget.id, operation.id)
         } catch (e: Exception) {
-            return Resource.Error("An error occurred during deleting BudgetOperation.")
+            Log.e("OperationRepository", "deleteOperation: ", e)
+            return Resource.Error()
         }
         return Resource.Success("BudgetOperation successfully deleted!")
     }
