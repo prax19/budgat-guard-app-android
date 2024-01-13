@@ -1,6 +1,7 @@
 package com.prax19.budgetguard.app.android.presentation.sign_up
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,12 +24,12 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -37,6 +38,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.util.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,24 +50,41 @@ fun EditUserDetailsScreen(
 
     val viewModel: EditUserDetailsViewModel = hiltViewModel()
 
-    var login by remember { viewModel.login }
     val loginInputFocusRequester = remember { viewModel.loginInputFocusRequester }
-    val isLoginInputBlank = remember { viewModel.isLoginInputBlank }
-
-    var password by remember { viewModel.password }
     val passwordInputFocusRequester = remember { viewModel.passwordInputFocusRequester }
-    val isPasswordInputBlank = remember { viewModel.isPasswordInputBlank }
-    val isPasswordHidden = remember { viewModel.isPasswordHidden }
-
-    var name by remember { viewModel.name }
     val nameInputFocusRequester = remember { viewModel.nameInputFocusRequester }
-    val isNameInputBlank = remember { viewModel.isNameInputBlank }
-
-    var surname by remember { viewModel.surname }
     val surnameInputFocusRequester = remember { viewModel.surnameInputFocusRequester }
-    val isSurnameInputBlank = remember { viewModel.isSurnameInputBlank }
-
     val saveButtonFocusRequester = remember { viewModel.saveButtonFocusRequester }
+
+    val state = viewModel.state
+    val context = LocalContext.current
+    LaunchedEffect(viewModel, context) {
+        viewModel.authResults.collect {
+            when(it) {
+                is AuthResult.Authorized -> {
+                    navController.navigate(Screen.MainScreen.route) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                    }
+                }
+                is AuthResult.Unauthorized -> {
+                    Toast.makeText(
+                        context,
+                        it.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                is AuthResult.Error -> {
+                    Toast.makeText(
+                        context,
+                        it.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
 
     Scaffold(
 
@@ -88,11 +107,9 @@ fun EditUserDetailsScreen(
                     Text(text = "Login")
                 },
                 singleLine = true,
-                value = login,
-                onValueChange = {text ->
-                    login = text
-                    isLoginInputBlank.value = text.isBlank()
-                    if(text.isBlank()) password = ""
+                value = state.login,
+                onValueChange = {
+                    viewModel.onEvent(EditUserDetailsUiEvent.UsernameChanged(it))
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Next,
@@ -115,12 +132,11 @@ fun EditUserDetailsScreen(
                 label = {
                     Text(text = "Password")
                 },
-                enabled = !isLoginInputBlank.value,
+                enabled = state.isPasswordEnabled,
                 singleLine = true,
-                value = password,
-                onValueChange = {text ->
-                    password = text
-                    isPasswordInputBlank.value = text.isBlank()
+                value = state.password,
+                onValueChange = {
+                    viewModel.onEvent(EditUserDetailsUiEvent.PasswordChanged(it))
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done,
@@ -133,25 +149,25 @@ fun EditUserDetailsScreen(
                     }
                 ),
                 visualTransformation =
-                if(isPasswordHidden.value)
-                    PasswordVisualTransformation()
-                else
-                    VisualTransformation.None,
+                    if(state.isPasswordHidden)
+                        PasswordVisualTransformation()
+                    else
+                        VisualTransformation.None,
                 trailingIcon = {
                     IconButton(
                         onClick = {
-                            isPasswordHidden.value = !isPasswordHidden.value
+                            viewModel.onEvent(EditUserDetailsUiEvent.ChangePasswordVisibility)
                         },
-                        enabled = !isLoginInputBlank.value,
+                        enabled = state.isPasswordEnabled,
                         content = {
-                            if(isPasswordHidden.value)
+                            if(state.isPasswordHidden)
                                 Icon(
-                                    imageVector = Icons.Filled.Visibility,
+                                    imageVector = Icons.Filled.VisibilityOff,
                                     contentDescription = "hide_show_password"
                                 )
                             else
                                 Icon(
-                                    imageVector = Icons.Filled.VisibilityOff,
+                                    imageVector = Icons.Filled.Visibility,
                                     contentDescription = "hide_show_password"
                                 )
                         }
@@ -169,12 +185,11 @@ fun EditUserDetailsScreen(
                 label = {
                         Text(text = "Name")
                 },
-                enabled = !isPasswordInputBlank.value,
+                enabled = state.isNameEnabled,
                 singleLine = true,
-                value = name,
+                value = state.name,
                 onValueChange = {text ->
-                    name = text
-                    isNameInputBlank.value = text.isBlank()
+                    viewModel.onEvent(EditUserDetailsUiEvent.NameChanged(text))
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Next,
@@ -197,12 +212,11 @@ fun EditUserDetailsScreen(
                 label = {
                     Text(text = "Surname")
                 },
-                enabled = !isPasswordInputBlank.value,
+                enabled = state.isSurnameEnabled,
                 singleLine = true,
-                value = surname,
-                onValueChange = {text ->
-                    surname = text
-                    isSurnameInputBlank.value = text.isBlank()
+                value = state.surname,
+                onValueChange = {
+                    viewModel.onEvent(EditUserDetailsUiEvent.SurnameChanged(it))
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Next,
@@ -225,18 +239,10 @@ fun EditUserDetailsScreen(
                 content = {
                           Text("Save")
                 },
-                enabled =
-                    !isLoginInputBlank.value &&
-                    !isPasswordInputBlank.value &&
-                    !isNameInputBlank.value &&
-                    !isSurnameInputBlank.value,
+                enabled = state.isFormComplete,
                 onClick = {
+                    viewModel.onEvent(EditUserDetailsUiEvent.SignUp)
                     viewModel.signUp()
-                    navController.navigate(Screen.MainScreen.route) {
-                        popUpTo(navController.graph.id) {
-                            inclusive = true
-                        }
-                    }
                 }
             )
 
