@@ -20,7 +20,13 @@ class MainScreenViewModel @Inject constructor(
     val state: State<ListOfBudgetsState> = _state
 
     init {
+        authenticate()
         loadBudgets()
+    }
+
+    //TODO: find another way to do this
+    fun authenticate() {
+        repository.authenticate()
     }
 
     fun loadBudgets() {
