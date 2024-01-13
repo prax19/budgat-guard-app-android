@@ -231,7 +231,7 @@ fun EditUserDetailsScreen(
                     !isNameInputBlank.value &&
                     !isSurnameInputBlank.value,
                 onClick = {
-                    viewModel.registerUser()
+                    viewModel.signUp()
                     navController.navigate(Screen.MainScreen.route) {
                         popUpTo(navController.graph.id) {
                             inclusive = true

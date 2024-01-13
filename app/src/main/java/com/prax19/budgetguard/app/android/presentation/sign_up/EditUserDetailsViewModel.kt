@@ -5,15 +5,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.focus.FocusRequester
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.prax19.budgetguard.app.android.data.model.User
-import com.prax19.budgetguard.app.android.repository.UserRepository
+import com.prax19.budgetguard.app.android.data.auth.Credentials
+import com.prax19.budgetguard.app.android.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class EditUserDetailsViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val authRepository: AuthRepository
 ): ViewModel() {
 
     var login = mutableStateOf("")
@@ -35,22 +35,19 @@ class EditUserDetailsViewModel @Inject constructor(
 
     var saveButtonFocusRequester = FocusRequester()
 
-    fun registerUser() {
+    fun signUp() {
         viewModelScope.launch {
             try {
-                userRepository.registerUser(
-                    User(-1,
-                        name.value,
-                        surname.value,
+                authRepository.signUp(
+                    Credentials.SignUp(
                         login.value,
-                        "USER",
-                        locked = false,
-                        enabled = true
-                    ),
-                    password.value
+                        password.value,
+                        name.value,
+                        surname.value
+                    )
                 )
             } catch (e: Exception) {
-                Log.e("EditUserDetailsViewModel", "registerUser: ", e)
+                Log.e("EditUserDetailsViewModel", "signUp: ", e)
             }
         }
     }

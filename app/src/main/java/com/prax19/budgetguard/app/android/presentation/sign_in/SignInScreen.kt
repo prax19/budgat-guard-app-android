@@ -166,6 +166,7 @@ fun SignInScreen(
                 },
                 enabled = !isLoginInputBlank.value && !isPasswordInputBlank.value,
                 onClick = {
+                    viewModel.signIn()
                     navController.navigate(Screen.MainScreen.route) {
                         popUpTo(navController.graph.id) {
                             inclusive = true
