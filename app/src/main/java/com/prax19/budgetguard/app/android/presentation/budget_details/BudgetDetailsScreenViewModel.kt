@@ -27,7 +27,6 @@ class BudgetDetailsScreenViewModel @Inject constructor(
     private val budgetId: Long? = null
 
     init {
-        authenticate()
         savedStateHandle.get<Long>("budgetId")?.let { budgetId ->
             if(budgetId != -1L) {
                 viewModelScope.launch {
@@ -35,12 +34,6 @@ class BudgetDetailsScreenViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    //TODO: find another way to do this
-    fun authenticate() {
-        budgetRepository.authenticate()
-        operationsRepository.authenticate()
     }
 
     fun loadBudget(budgetId: Long) {

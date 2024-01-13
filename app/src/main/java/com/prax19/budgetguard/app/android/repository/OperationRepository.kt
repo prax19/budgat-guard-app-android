@@ -2,7 +2,6 @@ package com.prax19.budgetguard.app.android.repository
 
 import android.util.Log
 import com.prax19.budgetguard.app.android.api.BudgetGuardApi
-import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.data.dto.BudgetOperationDTO
 import com.prax19.budgetguard.app.android.data.model.Budget
 import com.prax19.budgetguard.app.android.data.model.Operation
@@ -12,32 +11,8 @@ import javax.inject.Inject
 
 @ActivityScoped
 class OperationRepository @Inject constructor(
-    private val api: BudgetGuardApi,
-    private val authRepository: AuthRepository,
+    private val api: BudgetGuardApi
 ) {
-
-    private var token = ""
-
-    //TODO: find another way to do this
-    //TODO: prevent all methods from being called unauthorised
-    fun authenticate() {
-        val result = authRepository.authenticate()
-        when(result) {
-            is AuthResult.Authorized -> {
-                token = result.data.toString()
-            }
-            is AuthResult.UserNotFound -> {
-
-            }
-            is AuthResult.Unauthorized -> {
-
-            }
-            is AuthResult.Error -> {
-
-            }
-        }
-    }
-
     suspend fun getAllOperations(budget: Budget) : Resource<List<Operation>> {
         val response = try {
             api.getBudgetOperations(budget.id).map {

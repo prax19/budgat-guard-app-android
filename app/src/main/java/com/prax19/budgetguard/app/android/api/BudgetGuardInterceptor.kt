@@ -1,6 +1,7 @@
 package com.prax19.budgetguard.app.android.api
 
 import android.content.SharedPreferences
+import android.util.Log
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -16,6 +17,7 @@ class BudgetGuardInterceptor @Inject constructor(
             return chain.proceed(request)
 
         val token = preferences.getString("jwt", null).toString()
+        Log.e("TOKEN", token)
         val authenticatedRequest = chain.request().newBuilder().addHeader("Authorization", token).build()
         return chain.proceed(authenticatedRequest)
     }

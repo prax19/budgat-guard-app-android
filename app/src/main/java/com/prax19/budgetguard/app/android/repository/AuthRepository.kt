@@ -52,24 +52,4 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    fun authenticate(): AuthResult<String> {
-        return try {
-            val token = preferences.getString("jwt", null) ?: return AuthResult.Unauthorized()
-
-            //TODO: authentication
-            AuthResult.Authorized(token)
-        } catch (e: HttpException) {
-            Log.e("AuthRepository", "HTTP code: ${e.code()}")
-            if(e.code() == 403) //TODO: update this to 401 in the backend
-                AuthResult.Unauthorized()
-            else if(e.code() == 404)
-                AuthResult.UserNotFound()
-            else
-                AuthResult.Error()
-        } catch (e: Exception) {
-            Log.e("AuthRepository", "authenticate: ${e.message}")
-            AuthResult.Error()
-        }
-    }
-
 }
