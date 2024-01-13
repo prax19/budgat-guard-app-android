@@ -27,7 +27,11 @@ class OperationRepository @Inject constructor(
                 //TODO: do this in repository or so
                 token = "Bearer ${result.data.toString()}"
             }
+            is AuthResult.UserNotFound -> {
+
+            }
             is AuthResult.Unauthorized -> {
+
             }
             is AuthResult.Error -> {
 

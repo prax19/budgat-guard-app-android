@@ -28,7 +28,11 @@ class BudgetRepository @Inject constructor(
                 token = "Bearer ${result.data.toString()}"
                 operationRepository.authenticate()
             }
+            is AuthResult.UserNotFound -> {
+
+            }
             is AuthResult.Unauthorized -> {
+
             }
             is AuthResult.Error -> {
 
