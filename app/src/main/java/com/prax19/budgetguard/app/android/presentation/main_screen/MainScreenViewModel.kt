@@ -28,7 +28,6 @@ class MainScreenViewModel @Inject constructor(
     fun authenticate() {
         repository.authenticate()
     }
-
     fun loadBudgets() {
         viewModelScope.launch {
             try {

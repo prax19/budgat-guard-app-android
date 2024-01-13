@@ -16,7 +16,7 @@ class OperationRepository @Inject constructor(
     private val authRepository: AuthRepository,
 ) {
 
-    var token = ""
+    private var token = ""
 
     //TODO: find another way to do this
     //TODO: prevent all methods from being called unauthorised
@@ -24,8 +24,7 @@ class OperationRepository @Inject constructor(
         val result = authRepository.authenticate()
         when(result) {
             is AuthResult.Authorized -> {
-                //TODO: do this in repository or so
-                token = "Bearer ${result.data.toString()}"
+                token = result.data.toString()
             }
             is AuthResult.UserNotFound -> {
 

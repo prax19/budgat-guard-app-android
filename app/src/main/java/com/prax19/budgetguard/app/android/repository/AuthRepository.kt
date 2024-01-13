@@ -19,7 +19,7 @@ class AuthRepository @Inject constructor(
     suspend fun signUp(credentials: Credentials.SignUp): AuthResult<Unit> {
         return try {
             val token = api.signUp(credentials)
-            preferences.edit().putString("jwt", token.token).apply()
+            preferences.edit().putString("jwt", "Bearer ${token.token}").apply()
             AuthResult.Authorized()
         } catch (e: HttpException) {
             Log.e("AuthRepository", "HTTP code: ${e.code()}")
@@ -36,7 +36,7 @@ class AuthRepository @Inject constructor(
     suspend fun signIn(credentials: Credentials.SignIn): AuthResult<Unit> {
         return try {
             val token = api.signIn(credentials)
-            preferences.edit().putString("jwt", token.token).apply()
+            preferences.edit().putString("jwt", "Bearer ${token.token}").apply()
             AuthResult.Authorized()
         } catch (e: HttpException) {
             Log.e("AuthRepository", "HTTP code: ${e.code()}")
