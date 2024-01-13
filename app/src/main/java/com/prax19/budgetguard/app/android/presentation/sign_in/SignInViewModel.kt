@@ -6,9 +6,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.data.auth.Credentials
 import com.prax19.budgetguard.app.android.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,6 +21,9 @@ class SignInViewModel @Inject constructor(
 ): ViewModel() {
 
     var state by mutableStateOf(SignInState())
+
+    private val resultChanel = Channel<AuthResult<Unit>>()
+    val authResults = resultChanel.receiveAsFlow()
 
     val loginInputFocusRequester = FocusRequester()
     val passwordInputFocusRequester = FocusRequester()
@@ -65,12 +71,13 @@ class SignInViewModel @Inject constructor(
     fun signIn() {
         viewModelScope.launch {
             state = state.copy(isLoading = true)
-            authRepository.signIn(
+            val result = authRepository.signIn(
                 Credentials.SignIn(
                     state.login,
                     state.password
                 )
             )
+            resultChanel.send(result)
             state = state.copy(isLoading = false)
         }
     }
