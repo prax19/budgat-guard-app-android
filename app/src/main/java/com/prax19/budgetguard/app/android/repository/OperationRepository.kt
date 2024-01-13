@@ -1,6 +1,7 @@
 package com.prax19.budgetguard.app.android.repository
 
 import com.prax19.budgetguard.app.android.api.BudgetGuardApi
+import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.data.dto.BudgetOperationDTO
 import com.prax19.budgetguard.app.android.data.model.Budget
 import com.prax19.budgetguard.app.android.data.model.Operation
@@ -10,15 +11,32 @@ import javax.inject.Inject
 
 @ActivityScoped
 class OperationRepository @Inject constructor(
-    private val api: BudgetGuardApi
+    private val api: BudgetGuardApi,
+    private val authRepository: AuthRepository,
 ) {
 
-    //TODO: handle user
-    private val auth = "Basic cGF0cnlrLnBpcm9nQG8zNjUudXMuZWR1LnBsOnBhc3N3b3Jk"
+    var token = ""
+
+    //TODO: find another way to do this
+    //TODO: prevent all methods from being called unauthorised
+    fun authenticate() {
+        val result = authRepository.authenticate()
+        when(result) {
+            is AuthResult.Authorized -> {
+                //TODO: do this in repository or so
+                token = "Bearer ${result.data.toString()}"
+            }
+            is AuthResult.Unauthorized -> {
+            }
+            is AuthResult.Error -> {
+
+            }
+        }
+    }
 
     suspend fun getAllOperations(budget: Budget) : Resource<List<Operation>> {
         val response = try {
-            api.getBudgetOperations(auth, budget.id).map {
+            api.getBudgetOperations(token, budget.id).map {
                 Operation(
                     it.id,
                     it.name,
@@ -37,7 +55,7 @@ class OperationRepository @Inject constructor(
     suspend fun postOperation(budget: Budget, operation: Operation): Resource<Budget> {
         val response: Budget
         try {
-            api.postBudgetOperation(auth, budget.id,
+            api.postBudgetOperation(token, budget.id,
                 BudgetOperationDTO(
                     -1,
                     operation.name,
@@ -60,7 +78,7 @@ class OperationRepository @Inject constructor(
         try {
             if(operation.id < 0)
                 throw Exception("invalid BudgetOperation id")
-            api.putOperation(auth, budget.id, operation.id,
+            api.putOperation(token, budget.id, operation.id,
                 BudgetOperationDTO(
                     operation.id,
                     operation.name,
@@ -77,7 +95,7 @@ class OperationRepository @Inject constructor(
 
     suspend fun deleteOperation(budget: Budget, operation: Operation) : Resource<String> {
         try {
-            api.deleteOperation(auth, budget.id, operation.id)
+            api.deleteOperation(token, budget.id, operation.id)
         } catch (e: Exception) {
             return Resource.Error("An error occurred during deleting BudgetOperation.")
         }

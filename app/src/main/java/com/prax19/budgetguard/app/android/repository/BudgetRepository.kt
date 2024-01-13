@@ -1,6 +1,7 @@
 package com.prax19.budgetguard.app.android.repository
 
 import com.prax19.budgetguard.app.android.api.BudgetGuardApi
+import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
 import com.prax19.budgetguard.app.android.data.model.Budget
 import com.prax19.budgetguard.app.android.util.Resource
@@ -10,16 +11,34 @@ import javax.inject.Inject
 @ActivityScoped
 class BudgetRepository @Inject constructor(
     private val api: BudgetGuardApi,
+    private val authRepository: AuthRepository,
     private val operationRepository: OperationRepository
 ) {
 
-    //TODO: handle user
-    private val auth = "Basic cGF0cnlrLnBpcm9nQG8zNjUudXMuZWR1LnBsOnBhc3N3b3Jk"
+    var token = ""
+
+    //TODO: find another way to do this
+    //TODO: prevent all methods from being called unauthorised
+    fun authenticate() {
+        val result = authRepository.authenticate()
+        when(result) {
+            is AuthResult.Authorized -> {
+                //TODO: do this in repository or so
+                token = "Bearer ${result.data.toString()}"
+                operationRepository.authenticate()
+            }
+            is AuthResult.Unauthorized -> {
+            }
+            is AuthResult.Error -> {
+
+            }
+        }
+    }
 
     suspend fun getAllBudgets() : Resource<List<Budget>> {
         val response: List<Budget>
         try {
-            response = api.getAllBudgets(auth).map {
+            response = api.getAllBudgets(token).map {
                 Budget(
                     it.id,
                     it.name,
@@ -39,7 +58,7 @@ class BudgetRepository @Inject constructor(
     suspend fun getBudget(budgetId: Long): Resource<Budget> {
         val response: Budget
         try {
-            response = api.getBudget(auth, budgetId).let {
+            response = api.getBudget(token, budgetId).let {
                 Budget(
                     it.id,
                     it.name,
@@ -58,7 +77,7 @@ class BudgetRepository @Inject constructor(
 
     suspend fun postBudget(budget: Budget): Resource<String> {
         try {
-            api.postBudget(auth,
+            api.postBudget(token,
                 BudgetDTO(
                     -1,
                     budget.name,
@@ -76,7 +95,7 @@ class BudgetRepository @Inject constructor(
         try {
             if(budget.id < 0)
                 throw Exception("invalid Budget id")
-            api.putBudget(auth, budget.id,
+            api.putBudget(token, budget.id,
                 BudgetDTO(
                     budget.id,
                     budget.name,
@@ -92,7 +111,7 @@ class BudgetRepository @Inject constructor(
 
     suspend fun deleteBudget(budget: Budget): Resource<String> {
         try {
-            api.deleteBudget(auth, budget.id)
+            api.deleteBudget(token, budget.id)
         } catch (e: Exception) {
             return Resource.Error("An error occurred during posting the budget.")
         }
