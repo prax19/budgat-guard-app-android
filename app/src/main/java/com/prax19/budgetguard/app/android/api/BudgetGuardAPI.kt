@@ -7,7 +7,6 @@ import com.prax19.budgetguard.app.android.data.dto.BudgetOperationDTO
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -30,50 +29,41 @@ interface BudgetGuardApi {
 
     @POST("budget")
     suspend fun postBudget(
-        @Header("Authorization") token: String,
         @Body budgetDTO: BudgetDTO
     )
 
     @PUT("budget/{id}")
     suspend fun putBudget(
-        @Header("Authorization") token: String,
         @Path("id") id: Long,
         @Body budgetDTO: BudgetDTO
     )
 
     @GET("budget/{id}")
     suspend fun getBudget(
-        @Header("Authorization") token: String,
         @Path("id") id: Long
     ): BudgetDTO
 
     @GET("budget")
-    suspend fun getAllBudgets(
-        @Header("Authorization") token: String
-    ): List<BudgetDTO>
+    suspend fun getAllBudgets(): List<BudgetDTO>
 
     @DELETE("budget/{id}")
     suspend fun deleteBudget(
-        @Header("Authorization") token: String,
         @Path("id") id: Long
     )
 
     @GET("budget/{id}/operations")
     suspend fun getBudgetOperations(
-        @Header("Authorization") token: String,
         @Path("id") id: Long
     ): List<BudgetOperationDTO>
 
     @POST("budget/{id}/operation")
     suspend fun postBudgetOperation(
-        @Header("Authorization") token: String,
         @Path("id") id: Long,
         @Body operationDTO: BudgetOperationDTO
     )
 
     @PUT("budget/{budgetId}/operation/{id}")
     suspend fun putOperation(
-        @Header("Authorization") token: String,
         @Path("budgetId") budgetId: Long,
         @Path("id") id: Long,
         @Body operationDTO: BudgetOperationDTO
@@ -81,7 +71,6 @@ interface BudgetGuardApi {
 
     @DELETE("budget/{budgetId}/operation/{id}")
     suspend fun deleteOperation(
-        @Header("Authorization") token: String,
         @Path("budgetId") budgetId: Long,
         @Path("id") id: Long
     )

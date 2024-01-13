@@ -99,7 +99,7 @@ class SignUpViewModel @Inject constructor(
                 state = state.copy(isPasswordHidden = !state.isPasswordHidden)
             }
             is SignUpUiEvent.SignUp -> {
-
+                signUp()
             }
         }
     }

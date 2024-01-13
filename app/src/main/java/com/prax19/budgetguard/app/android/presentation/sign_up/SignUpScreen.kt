@@ -249,7 +249,6 @@ fun SignUpScreen(
                 enabled = state.isFormComplete,
                 onClick = {
                     viewModel.onEvent(SignUpUiEvent.SignUp)
-                    viewModel.signUp()
                 }
             )
 

@@ -195,12 +195,7 @@ fun SignInScreen(
                 },
                 enabled = state.isFormComplete,
                 onClick = {
-                    viewModel.signIn()
-                    navController.navigate(Screen.MainScreen.route) {
-                        popUpTo(navController.graph.id) {
-                            inclusive = true
-                        }
-                    }
+                    viewModel.onEvent(SignInUiEvent.SignIn)
                 }
             )
             Spacer(modifier = Modifier

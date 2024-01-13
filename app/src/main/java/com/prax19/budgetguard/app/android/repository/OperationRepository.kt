@@ -40,7 +40,7 @@ class OperationRepository @Inject constructor(
 
     suspend fun getAllOperations(budget: Budget) : Resource<List<Operation>> {
         val response = try {
-            api.getBudgetOperations(token, budget.id).map {
+            api.getBudgetOperations(budget.id).map {
                 Operation(
                     it.id,
                     it.name,
@@ -60,7 +60,7 @@ class OperationRepository @Inject constructor(
     suspend fun postOperation(budget: Budget, operation: Operation): Resource<Budget> {
         val response: Budget
         try {
-            api.postBudgetOperation(token, budget.id,
+            api.postBudgetOperation(budget.id,
                 BudgetOperationDTO(
                     -1,
                     operation.name,
@@ -84,7 +84,7 @@ class OperationRepository @Inject constructor(
         try {
             if(operation.id < 0)
                 throw Exception("invalid BudgetOperation id")
-            api.putOperation(token, budget.id, operation.id,
+            api.putOperation(budget.id, operation.id,
                 BudgetOperationDTO(
                     operation.id,
                     operation.name,
@@ -102,7 +102,7 @@ class OperationRepository @Inject constructor(
 
     suspend fun deleteOperation(budget: Budget, operation: Operation) : Resource<String> {
         try {
-            api.deleteOperation(token, budget.id, operation.id)
+            api.deleteOperation(budget.id, operation.id)
         } catch (e: Exception) {
             Log.e("OperationRepository", "deleteOperation: ", e)
             return Resource.Error()

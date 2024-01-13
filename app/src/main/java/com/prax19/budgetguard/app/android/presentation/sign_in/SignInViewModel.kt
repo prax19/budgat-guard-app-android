@@ -63,7 +63,7 @@ class SignInViewModel @Inject constructor(
                 state = state.copy(isPasswordHidden = !state.isPasswordHidden)
             }
             is SignInUiEvent.SignIn -> {
-
+                signIn()
             }
         }
     }

@@ -42,7 +42,7 @@ class BudgetRepository @Inject constructor(
     suspend fun getAllBudgets() : Resource<List<Budget>> {
         val response: List<Budget>
         try {
-            response = api.getAllBudgets(token).map {
+            response = api.getAllBudgets().map {
                 Budget(
                     it.id,
                     it.name,
@@ -63,7 +63,7 @@ class BudgetRepository @Inject constructor(
     suspend fun getBudget(budgetId: Long): Resource<Budget> {
         val response: Budget
         try {
-            response = api.getBudget(token, budgetId).let {
+            response = api.getBudget(budgetId).let {
                 Budget(
                     it.id,
                     it.name,
@@ -83,7 +83,7 @@ class BudgetRepository @Inject constructor(
 
     suspend fun postBudget(budget: Budget): Resource<String> {
         try {
-            api.postBudget(token,
+            api.postBudget(
                 BudgetDTO(
                     -1,
                     budget.name,
@@ -102,7 +102,7 @@ class BudgetRepository @Inject constructor(
         try {
             if(budget.id < 0)
                 throw Exception("invalid Budget id")
-            api.putBudget(token, budget.id,
+            api.putBudget(budget.id,
                 BudgetDTO(
                     budget.id,
                     budget.name,
@@ -119,7 +119,7 @@ class BudgetRepository @Inject constructor(
 
     suspend fun deleteBudget(budget: Budget): Resource<String> {
         try {
-            api.deleteBudget(token, budget.id)
+            api.deleteBudget(budget.id)
         } catch (e: Exception) {
             Log.e("BudgetRepository", "deleteBudget: ", e)
             return Resource.Error()

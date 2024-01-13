@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import com.prax19.budgetguard.app.android.api.BudgetGuardApi
+import com.prax19.budgetguard.app.android.api.BudgetGuardInterceptor
 import com.prax19.budgetguard.app.android.repository.AuthRepository
 import com.prax19.budgetguard.app.android.repository.BudgetRepository
 import com.prax19.budgetguard.app.android.repository.OperationRepository
@@ -12,6 +13,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -57,12 +59,26 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideBudgetGuardApi(): BudgetGuardApi {
+    fun provideBudgetGuardApi(interceptor: BudgetGuardInterceptor): BudgetGuardApi {
+
         return Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
             .baseUrl(BudgetGuardApi.BASE_URL)
+            .client(
+                OkHttpClient.Builder()
+                    .addInterceptor(interceptor)
+                    .build()
+            )
             .build()
             .create(BudgetGuardApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBudgetGuardInterceptor(
+        preferences: SharedPreferences
+    ): BudgetGuardInterceptor {
+        return BudgetGuardInterceptor(preferences)
     }
 
 }
