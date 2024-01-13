@@ -6,9 +6,11 @@ import androidx.lifecycle.ViewModel
 import com.prax19.budgetguard.app.android.api.BudgetGuardApi
 import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.data.auth.Credentials
+import dagger.hilt.android.scopes.ActivityScoped
 import retrofit2.HttpException
 import javax.inject.Inject
 
+@ActivityScoped
 class AuthRepository @Inject constructor(
     private val api: BudgetGuardApi,
     private val preferences: SharedPreferences
@@ -48,7 +50,7 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    suspend fun authenticate(): AuthResult<String> {
+    fun authenticate(): AuthResult<String> {
         return try {
             val token = preferences.getString("jwt", null) ?: return AuthResult.Unauthorized()
 
