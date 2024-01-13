@@ -31,9 +31,9 @@ class SignUpViewModel @Inject constructor(
     var surnameInputFocusRequester = FocusRequester()
     var saveButtonFocusRequester = FocusRequester()
 
-    fun onEvent(event: EditUserDetailsUiEvent) {
+    fun onEvent(event: SignUpUiEvent) {
         when(event) {
-            is EditUserDetailsUiEvent.UsernameChanged -> {
+            is SignUpUiEvent.UsernameChanged -> {
                 state = state.copy(login = event.value)
                 if(state.login.isBlank()) {
                     state = state.copy(
@@ -45,7 +45,7 @@ class SignUpViewModel @Inject constructor(
                     )
                 }
             }
-            is EditUserDetailsUiEvent.PasswordChanged -> {
+            is SignUpUiEvent.PasswordChanged -> {
                 state = state.copy(password = event.value)
                 if(state.password.isBlank()) {
                     state = state.copy(
@@ -59,24 +59,24 @@ class SignUpViewModel @Inject constructor(
                     )
                 }
             }
-            is EditUserDetailsUiEvent.NameChanged -> {
+            is SignUpUiEvent.NameChanged -> {
                 state = state.copy(name = event.value)
                 if(state.name.isBlank() || state.surname.isBlank())
                     state = state.copy(isFormComplete = false)
                 else
                     state = state.copy(isFormComplete = true)
             }
-            is EditUserDetailsUiEvent.SurnameChanged -> {
+            is SignUpUiEvent.SurnameChanged -> {
                 state = state.copy(surname = event.value)
                 if(state.name.isBlank() || state.surname.isBlank())
                     state = state.copy(isFormComplete = false)
                 else
                     state = state.copy(isFormComplete = true)
             }
-            is EditUserDetailsUiEvent.ChangePasswordVisibility -> {
+            is SignUpUiEvent.ChangePasswordVisibility -> {
                 state = state.copy(isPasswordHidden = !state.isPasswordHidden)
             }
-            is EditUserDetailsUiEvent.SignUp -> {
+            is SignUpUiEvent.SignUp -> {
 
             }
         }

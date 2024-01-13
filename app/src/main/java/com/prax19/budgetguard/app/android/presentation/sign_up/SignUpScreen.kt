@@ -44,7 +44,7 @@ import com.prax19.budgetguard.app.android.util.Screen
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun EditUserDetailsScreen(
+fun SignUpScreen(
     navController: NavController
 ) {
 
@@ -109,7 +109,7 @@ fun EditUserDetailsScreen(
                 singleLine = true,
                 value = state.login,
                 onValueChange = {
-                    viewModel.onEvent(EditUserDetailsUiEvent.UsernameChanged(it))
+                    viewModel.onEvent(SignUpUiEvent.UsernameChanged(it))
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Next,
@@ -136,7 +136,7 @@ fun EditUserDetailsScreen(
                 singleLine = true,
                 value = state.password,
                 onValueChange = {
-                    viewModel.onEvent(EditUserDetailsUiEvent.PasswordChanged(it))
+                    viewModel.onEvent(SignUpUiEvent.PasswordChanged(it))
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done,
@@ -156,7 +156,7 @@ fun EditUserDetailsScreen(
                 trailingIcon = {
                     IconButton(
                         onClick = {
-                            viewModel.onEvent(EditUserDetailsUiEvent.ChangePasswordVisibility)
+                            viewModel.onEvent(SignUpUiEvent.ChangePasswordVisibility)
                         },
                         enabled = state.isPasswordEnabled,
                         content = {
@@ -189,7 +189,7 @@ fun EditUserDetailsScreen(
                 singleLine = true,
                 value = state.name,
                 onValueChange = {text ->
-                    viewModel.onEvent(EditUserDetailsUiEvent.NameChanged(text))
+                    viewModel.onEvent(SignUpUiEvent.NameChanged(text))
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Next,
@@ -216,7 +216,7 @@ fun EditUserDetailsScreen(
                 singleLine = true,
                 value = state.surname,
                 onValueChange = {
-                    viewModel.onEvent(EditUserDetailsUiEvent.SurnameChanged(it))
+                    viewModel.onEvent(SignUpUiEvent.SurnameChanged(it))
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Next,
@@ -241,7 +241,7 @@ fun EditUserDetailsScreen(
                 },
                 enabled = state.isFormComplete,
                 onClick = {
-                    viewModel.onEvent(EditUserDetailsUiEvent.SignUp)
+                    viewModel.onEvent(SignUpUiEvent.SignUp)
                     viewModel.signUp()
                 }
             )
