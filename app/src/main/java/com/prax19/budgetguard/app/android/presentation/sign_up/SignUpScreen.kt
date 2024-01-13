@@ -48,7 +48,7 @@ fun EditUserDetailsScreen(
     navController: NavController
 ) {
 
-    val viewModel: EditUserDetailsViewModel = hiltViewModel()
+    val viewModel: SignUpViewModel = hiltViewModel()
 
     val loginInputFocusRequester = remember { viewModel.loginInputFocusRequester }
     val passwordInputFocusRequester = remember { viewModel.passwordInputFocusRequester }
