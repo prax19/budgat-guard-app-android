@@ -1,8 +1,9 @@
 package com.prax19.budgetguard.app.android.api
 
+import com.prax19.budgetguard.app.android.data.auth.Credentials
+import com.prax19.budgetguard.app.android.data.auth.Token
 import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
 import com.prax19.budgetguard.app.android.data.dto.BudgetOperationDTO
-import com.prax19.budgetguard.app.android.data.dto.user.UserDTO
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -17,58 +18,62 @@ interface BudgetGuardApi {
         const val BASE_URL = "http://192.168.0.205:8080/api/v1/"
     }
 
-    @POST("user/register")
-    suspend fun registerUser(
-        @Header("X-API-KEY") apiKey: String,
-        @Body userDTO: UserDTO
-    )
+    @POST("auth/register")
+    suspend fun signUp(
+        @Body credentials: Credentials.SignUp
+    ): Token
+
+    @POST("auth/authenticate")
+    suspend fun signIn(
+        @Body credentials: Credentials.SignIn
+    ): Token
 
     @POST("budget")
     suspend fun postBudget(
-        @Header("Authorization") auth: String,
+        @Header("Authorization") token: String,
         @Body budgetDTO: BudgetDTO
     )
 
     @PUT("budget/{id}")
     suspend fun putBudget(
-        @Header("Authorization") auth: String,
+        @Header("Authorization") token: String,
         @Path("id") id: Long,
         @Body budgetDTO: BudgetDTO
     )
 
     @GET("budget/{id}")
     suspend fun getBudget(
-        @Header("Authorization") auth: String,
+        @Header("Authorization") token: String,
         @Path("id") id: Long
     ): BudgetDTO
 
     @GET("budget")
     suspend fun getAllBudgets(
-        @Header("Authorization") auth: String
+        @Header("Authorization") token: String
     ): List<BudgetDTO>
 
     @DELETE("budget/{id}")
     suspend fun deleteBudget(
-        @Header("Authorization") auth: String,
+        @Header("Authorization") token: String,
         @Path("id") id: Long
     )
 
     @GET("budget/{id}/operations")
     suspend fun getBudgetOperations(
-        @Header("Authorization") auth: String,
+        @Header("Authorization") token: String,
         @Path("id") id: Long
     ): List<BudgetOperationDTO>
 
     @POST("budget/{id}/operation")
     suspend fun postBudgetOperation(
-        @Header("Authorization") auth: String,
+        @Header("Authorization") token: String,
         @Path("id") id: Long,
         @Body operationDTO: BudgetOperationDTO
     )
 
     @PUT("budget/{budgetId}/operation/{id}")
     suspend fun putOperation(
-        @Header("Authorization") auth: String,
+        @Header("Authorization") token: String,
         @Path("budgetId") budgetId: Long,
         @Path("id") id: Long,
         @Body operationDTO: BudgetOperationDTO
@@ -76,7 +81,7 @@ interface BudgetGuardApi {
 
     @DELETE("budget/{budgetId}/operation/{id}")
     suspend fun deleteOperation(
-        @Header("Authorization") auth: String,
+        @Header("Authorization") token: String,
         @Path("budgetId") budgetId: Long,
         @Path("id") id: Long
     )
