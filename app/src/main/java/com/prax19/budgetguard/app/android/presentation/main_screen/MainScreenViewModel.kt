@@ -1,6 +1,5 @@
 package com.prax19.budgetguard.app.android.presentation.main_screen
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -31,16 +30,11 @@ class MainScreenViewModel @Inject constructor(
 
     fun loadBudgets() {
         viewModelScope.launch {
-            try {
                 _state.value = state.value.copy(isLoading = true)
                 _state.value = state.value.copy(
                     budgets = repository.getAllBudgets().data,
                     isLoading = false
                 )
-            } catch (e: Exception) {
-                Log.e("MainScreenViewModel", "getAllBudgets: ", e)
-                _state.value = state.value.copy(isLoading = false)
-            }
         }
     }
 
@@ -50,7 +44,6 @@ class MainScreenViewModel @Inject constructor(
 
     //TODO: replace this with repository function
     fun getBudgetById(id: Long?): Budget? {
-        try {
             id?.let{
                 if(id < 0)
                     return null
@@ -63,41 +56,25 @@ class MainScreenViewModel @Inject constructor(
                 }
             }
             return null
-        } catch (e: Exception) {
-            Log.e("MainScreenViewModel", "getBudget: ", e)
-            return null
-        }
     }
 
     fun createNewBudget(budget: Budget) {
         viewModelScope.launch {
-            try {
-                repository.postBudget(budget)
-            } catch (e: Exception) {
-                Log.e("MainScreenViewModel", "createNewBudget: ", e)
-            }
+            repository.postBudget(budget)
             suspend { refreshBudgets() }.invoke()
         }
     }
 
     fun editBudget(budget: Budget) {
         viewModelScope.launch {
-            try {
-                repository.putBudget(budget)
-            } catch (e: Exception) {
-                Log.e("MainScreenViewModel", "editExistingBudget: ", e)
-            }
+            repository.putBudget(budget)
             suspend { loadBudgets() }.invoke()
         }
     }
 
     fun deleteBudget(budget: Budget) {
         viewModelScope.launch {
-            try {
-                repository.deleteBudget(budget)
-            } catch (e: Exception) {
-                Log.e("MainScreenViewModel", "deleteBudget: ", e)
-            }
+            repository.deleteBudget(budget)
             suspend { refreshBudgets() }.invoke()
         }
     }
