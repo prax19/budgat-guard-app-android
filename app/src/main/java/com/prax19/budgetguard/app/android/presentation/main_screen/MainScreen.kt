@@ -69,7 +69,19 @@ fun MainScreen(navController: NavController) {
                 is AuthResult.Unauthorized -> {
                     Toast.makeText(
                         context,
-                        "User unauthorised!",
+                        it.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                    navController.navigate(Screen.SignInScreen.route) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                    }
+                }
+                is AuthResult.Forbidden -> {
+                    Toast.makeText(
+                        context,
+                        it.message,
                         Toast.LENGTH_LONG
                     ).show()
                     navController.navigate(Screen.SignInScreen.route) {
@@ -81,7 +93,7 @@ fun MainScreen(navController: NavController) {
                 is AuthResult.Error -> {
                     Toast.makeText(
                         context,
-                        "Auth error!",
+                        it.message,
                         Toast.LENGTH_LONG
                     ).show()
                     navController.navigate(Screen.MainScreen.route) {

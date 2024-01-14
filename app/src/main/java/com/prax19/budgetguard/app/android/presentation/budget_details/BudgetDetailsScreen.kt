@@ -79,13 +79,25 @@ fun BudgetDetailsScreen(navController: NavController) {
                         }
                     }
                 }
+                is AuthResult.Forbidden -> {
+                    Toast.makeText(
+                        context,
+                        it.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                    navController.navigate(Screen.SignInScreen.route) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                    }
+                }
                 is AuthResult.Error -> {
                     Toast.makeText(
                         context,
-                        "Auth error!",
+                        it.message,
                         Toast.LENGTH_LONG
                     ).show()
-                    navController.navigate(Screen.MainScreen.route) {
+                    navController.navigate(Screen.SignInScreen.route) {
                         popUpTo(navController.graph.id) {
                             inclusive = true
                         }

@@ -8,6 +8,7 @@ import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.data.auth.Credentials
 import dagger.hilt.android.scopes.ActivityScoped
 import retrofit2.HttpException
+import java.net.ConnectException
 import javax.inject.Inject
 
 @ActivityScoped
@@ -27,6 +28,9 @@ class AuthRepository @Inject constructor(
                 AuthResult.Error("Login already taken!")
             else
                 AuthResult.Error()
+        } catch (e: ConnectException) {
+            Log.e("AuthRepository", "Cannot connect to the server!")
+            AuthResult.Error("Cannot connect to the server!")
         } catch (e: Exception) {
             Log.e("AuthRepository", "signUp: ${e.message}")
             AuthResult.Error()
@@ -40,14 +44,19 @@ class AuthRepository @Inject constructor(
             AuthResult.Authorized()
         } catch (e: HttpException) {
             Log.e("AuthRepository", "HTTP code: ${e.code()}")
-            if(e.code() == 401) //TODO: update this to 401 in the backend
+            if (e.code() == 401)
                 AuthResult.Unauthorized()
-            else if(e.code() == 404)
+            else if (e.code() == 403)
+                AuthResult.Forbidden("Credentials incorrect!")
+            else if (e.code() == 404)
                 AuthResult.UserNotFound()
-            else if(e.code() == 500)
+            else if (e.code() == 500)
                 AuthResult.Error("Internal server error")
             else
                 AuthResult.Error()
+        } catch (e: ConnectException) {
+            Log.e("AuthRepository", "Cannot connect to the server!")
+            AuthResult.Error("Cannot connect to the server!")
         } catch (e: Exception) {
             Log.e("AuthRepository", "signUp: ${e.message}")
             AuthResult.Error()

@@ -75,6 +75,13 @@ fun SignUpScreen(
                         Toast.LENGTH_LONG
                     ).show()
                 }
+                is AuthResult.Forbidden -> {
+                    Toast.makeText(
+                        context,
+                        it.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
                 is AuthResult.UserNotFound -> {
                     Toast.makeText(
                         context,

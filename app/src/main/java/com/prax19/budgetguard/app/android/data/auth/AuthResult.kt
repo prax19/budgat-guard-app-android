@@ -10,12 +10,16 @@ sealed class AuthResult<T>(val data: T? = null, val message: String? = null) {
         message: String? = "User not authorized!"
     ): AuthResult<T>(message = message)
 
+    class Forbidden<T>(
+        message: String = "Resource forbidden!"
+    ): AuthResult<T>(message = message)
+
     class UserNotFound<T>(
         message: String = "User not found!"
     ): AuthResult<T>(message = message)
 
     class Error<T>(
-        message: String = "Unknown error!"
+        message: String = "Auth error!"
     ): AuthResult<T>(message = message)
 
 }

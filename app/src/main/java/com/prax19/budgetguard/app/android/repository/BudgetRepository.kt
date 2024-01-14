@@ -8,6 +8,7 @@ import com.prax19.budgetguard.app.android.data.model.Budget
 import com.prax19.budgetguard.app.android.util.Resource
 import dagger.hilt.android.scopes.ActivityScoped
 import retrofit2.HttpException
+import java.net.ConnectException
 import javax.inject.Inject
 
 @ActivityScoped
@@ -36,6 +37,11 @@ class BudgetRepository @Inject constructor(
                     authResult = AuthResult.Unauthorized()
                 )
             return Resource.Error()
+        } catch (e: ConnectException) {
+            Log.e("AuthRepository", "Cannot connect to the server!")
+            return Resource.Error(
+                authResult = AuthResult.Error("Cannot connect to the server!")
+            )
         } catch (e: Exception) {
             Log.e("BudgetRepository", "getAllBudgets: ", e)
             return Resource.Error()
@@ -64,6 +70,11 @@ class BudgetRepository @Inject constructor(
                     authResult = AuthResult.Unauthorized()
                 )
             return Resource.Error()
+        } catch (e: ConnectException) {
+            Log.e("AuthRepository", "Cannot connect to the server!")
+            return Resource.Error(
+                authResult = AuthResult.Error("Cannot connect to the server!")
+            )
         } catch (e: Exception) {
             Log.e("BudgetRepository", "getBudget: ", e)
             return Resource.Error()
@@ -88,6 +99,11 @@ class BudgetRepository @Inject constructor(
                     authResult = AuthResult.Unauthorized()
                 )
             return Resource.Error()
+        } catch (e: ConnectException) {
+            Log.e("AuthRepository", "Cannot connect to the server!")
+            return Resource.Error(
+                authResult = AuthResult.Error("Cannot connect to the server!")
+            )
         } catch (e: Exception) {
             Log.e("BudgetRepository", "postBudget: ", e)
             return Resource.Error()
@@ -114,6 +130,11 @@ class BudgetRepository @Inject constructor(
                     authResult = AuthResult.Unauthorized()
                 )
             return Resource.Error()
+        } catch (e: ConnectException) {
+            Log.e("AuthRepository", "Cannot connect to the server!")
+            return Resource.Error(
+                authResult = AuthResult.Error("Cannot connect to the server!")
+            )
         } catch (e: Exception) {
             Log.e("BudgetRepository", "putBudget: ", e)
             return Resource.Error()
@@ -131,6 +152,11 @@ class BudgetRepository @Inject constructor(
                     authResult = AuthResult.Unauthorized()
                 )
             return Resource.Error()
+        } catch (e: ConnectException) {
+            Log.e("AuthRepository", "Cannot connect to the server!")
+            return Resource.Error(
+                authResult = AuthResult.Error("Cannot connect to the server!")
+            )
         } catch (e: Exception) {
             Log.e("BudgetRepository", "deleteBudget: ", e)
             return Resource.Error()
