@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         ) {
-                            BudgetDetailsScreen()
+                            BudgetDetailsScreen(navConstoller)
                         }
                         composable(route = Screen.SignInScreen.route) {
                             SignInScreen(navConstoller)

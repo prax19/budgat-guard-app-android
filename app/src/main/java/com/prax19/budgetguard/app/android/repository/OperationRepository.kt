@@ -40,6 +40,35 @@ class OperationRepository @Inject constructor(
         return Resource.Success(response)
     }
 
+    suspend fun getOperationById(budget: Budget, id: Long): Resource<Operation> {
+        val response = try {
+            api.getBudgetOperation(budget.id, id).let {
+                Operation(
+                    id,
+                    it.name,
+                    budget,
+                    it.userId,
+                    it.value
+                )
+            }
+        } catch (e: HttpException) {
+            Log.e("OperationRepository", "HTTP code: ${e.code()}")
+            if(e.code() == 401)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
+            if(e.code() == 403)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
+            return Resource.Error()
+        } catch (e: Exception) {
+            Log.e("OperationRepository", "getOperationById: ", e)
+            return Resource.Error()
+        }
+        return Resource.Success(response)
+    }
+
     suspend fun postOperation(budget: Budget, operation: Operation): Resource<Budget> {
         val response: Budget
         try {

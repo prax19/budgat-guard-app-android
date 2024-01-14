@@ -56,6 +56,12 @@ interface BudgetGuardApi {
         @Path("id") id: Long
     ): List<BudgetOperationDTO>
 
+    @GET("budget/{budgetId}/operation/{id}")
+    suspend fun getBudgetOperation(
+        @Path("budgetId") budgetId: Long,
+        @Path("id") id: Long
+    ): BudgetOperationDTO
+
     @POST("budget/{id}/operation")
     suspend fun postBudgetOperation(
         @Path("id") id: Long,

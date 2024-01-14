@@ -21,8 +21,8 @@ class MainScreenViewModel @Inject constructor(
     private val _state = mutableStateOf(ListOfBudgetsState())
     val state: State<ListOfBudgetsState> = _state
 
-    private val authErrorChanel = Channel<AuthResult<Unit>>()
-    val authErrors = authErrorChanel.receiveAsFlow()
+    private val resultChannel = Channel<AuthResult<*>>()
+    val results = resultChannel.receiveAsFlow()
 
     init {
         loadBudgets()
@@ -60,22 +60,31 @@ class MainScreenViewModel @Inject constructor(
 
     fun createNewBudget(budget: Budget) {
         viewModelScope.launch {
-            repository.postBudget(budget)
+            val result = repository.postBudget(budget)
             suspend { refreshBudgets() }.invoke()
+            result.authResult?.let {
+                resultChannel.send(it)
+            }
         }
     }
 
     fun editBudget(budget: Budget) {
         viewModelScope.launch {
-            repository.putBudget(budget)
+            val result = repository.putBudget(budget)
             suspend { loadBudgets() }.invoke()
+            result.authResult?.let {
+                resultChannel.send(it)
+            }
         }
     }
 
     fun deleteBudget(budget: Budget) {
         viewModelScope.launch {
-            repository.deleteBudget(budget)
+            val result = repository.deleteBudget(budget)
             suspend { refreshBudgets() }.invoke()
+            result.authResult?.let {
+                resultChannel.send(it)
+            }
         }
     }
 

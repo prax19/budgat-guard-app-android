@@ -1,6 +1,5 @@
 package com.prax19.budgetguard.app.android.presentation.budget_details
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
@@ -27,8 +26,8 @@ class BudgetDetailsScreenViewModel @Inject constructor(
     private val _budgetState = mutableStateOf(BudgetState())
     val budgetState: State<BudgetState> = _budgetState
 
-    private val resultChanel = Channel<AuthResult<Unit>>()
-    val authResults = resultChanel.receiveAsFlow()
+    private val resultChanel = Channel<AuthResult<*>>()
+    val results = resultChanel.receiveAsFlow()
 
     private val budgetId: Long? = null
 
@@ -46,8 +45,10 @@ class BudgetDetailsScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _budgetState.value = budgetState.value.copy(isLoading = true)
 
+            val result = budgetRepository.getBudget(budgetId)
+
             var budget: Budget
-            budgetRepository.getBudget(budgetId).data?.let {
+            result.data?.let {
                 budget = Budget(
                     it.id,
                     it.name,
@@ -64,6 +65,9 @@ class BudgetDetailsScreenViewModel @Inject constructor(
                     budget = budget
                 )
             }
+            result.authResult?.let {
+                resultChanel.send(it)
+            }
             _budgetState.value = budgetState.value.copy(isLoading = false)
         }
     }
@@ -74,7 +78,6 @@ class BudgetDetailsScreenViewModel @Inject constructor(
         }
     }
 
-    // TODO: update to DTO as return
     fun getOperationById(id: Long?): Operation? {
         id?.let {
             if(id < 0)
@@ -94,10 +97,13 @@ class BudgetDetailsScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _budgetState.value = budgetState.value.copy(isLoading = true)
             budgetState.value.budget?.let {
-                val newBg = operationsRepository.postOperation(
+                val result = operationsRepository.postOperation(
                     it, operation
                 )
                 suspend { refreshBudget() }.invoke() // TODO: test if it is necessary
+                result.authResult?.let {
+                    resultChanel.send(it)
+                }
             }
             _budgetState.value = budgetState.value.copy(isLoading = false)
         }
@@ -107,8 +113,13 @@ class BudgetDetailsScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _budgetState.value = budgetState.value.copy(isLoading = true)
             budgetState.value.budget?.let {
-                operationsRepository.putOperations(it, operation)
+                val result = operationsRepository.putOperations(
+                    it, operation
+                )
                 suspend { refreshBudget() }.invoke() // TODO: test if it is necessary
+                result.authResult?.let {
+                    resultChanel.send(it)
+                }
             }
             _budgetState.value = budgetState.value.copy(isLoading = false)
         }
@@ -118,9 +129,13 @@ class BudgetDetailsScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _budgetState.value = budgetState.value.copy(isLoading = true)
             budgetState.value.budget?.let {
-                Log.e(it.name, operation.name)
-                operationsRepository.deleteOperation(it, operation)
+                val result = operationsRepository.deleteOperation(
+                    it, operation
+                )
                 suspend { refreshBudget() }.invoke()
+                result.authResult?.let {
+                    resultChanel.send(it)
+                }
             }
             _budgetState.value = budgetState.value.copy(isLoading = false)
         }
