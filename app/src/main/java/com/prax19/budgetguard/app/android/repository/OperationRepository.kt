@@ -1,24 +1,24 @@
 package com.prax19.budgetguard.app.android.repository
 
+import android.util.Log
 import com.prax19.budgetguard.app.android.api.BudgetGuardApi
+import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.data.dto.BudgetOperationDTO
 import com.prax19.budgetguard.app.android.data.model.Budget
 import com.prax19.budgetguard.app.android.data.model.Operation
 import com.prax19.budgetguard.app.android.util.Resource
 import dagger.hilt.android.scopes.ActivityScoped
+import retrofit2.HttpException
+import java.net.ConnectException
 import javax.inject.Inject
 
 @ActivityScoped
 class OperationRepository @Inject constructor(
     private val api: BudgetGuardApi
 ) {
-
-    //TODO: handle user
-    private val auth = "Basic cGF0cnlrLnBpcm9nQG8zNjUudXMuZWR1LnBsOnBhc3N3b3Jk"
-
     suspend fun getAllOperations(budget: Budget) : Resource<List<Operation>> {
         val response = try {
-            api.getBudgetOperations(auth, budget.id).map {
+            api.getBudgetOperations(budget.id).map {
                 Operation(
                     it.id,
                     it.name,
@@ -27,9 +27,55 @@ class OperationRepository @Inject constructor(
                     it.value
                 )
             }
-
+        } catch (e: HttpException) {
+            Log.e("OperationRepository", "HTTP code: ${e.code()}")
+            if(e.code() == 401)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
+            return Resource.Error()
+        } catch (e: ConnectException) {
+            Log.e("AuthRepository", "Cannot connect to the server!")
+            return Resource.Error(
+                authResult = AuthResult.Error("Cannot connect to the server!")
+            )
         } catch (e: Exception) {
-            return Resource.Error("An error occurred during loading list of BudgetOperations.")
+            Log.e("OperationRepository", "getAllOperations: ", e)
+            return Resource.Error()
+        }
+        return Resource.Success(response)
+    }
+
+    suspend fun getOperationById(budget: Budget, id: Long): Resource<Operation> {
+        val response = try {
+            api.getBudgetOperation(budget.id, id).let {
+                Operation(
+                    id,
+                    it.name,
+                    budget,
+                    it.userId,
+                    it.value
+                )
+            }
+        } catch (e: HttpException) {
+            Log.e("OperationRepository", "HTTP code: ${e.code()}")
+            if(e.code() == 401)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
+            if(e.code() == 403)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
+            return Resource.Error()
+        } catch (e: ConnectException) {
+            Log.e("AuthRepository", "Cannot connect to the server!")
+            return Resource.Error(
+                authResult = AuthResult.Error("Cannot connect to the server!")
+            )
+        } catch (e: Exception) {
+            Log.e("OperationRepository", "getOperationById: ", e)
+            return Resource.Error()
         }
         return Resource.Success(response)
     }
@@ -37,7 +83,7 @@ class OperationRepository @Inject constructor(
     suspend fun postOperation(budget: Budget, operation: Operation): Resource<Budget> {
         val response: Budget
         try {
-            api.postBudgetOperation(auth, budget.id,
+            api.postBudgetOperation(budget.id,
                 BudgetOperationDTO(
                     -1,
                     operation.name,
@@ -49,8 +95,21 @@ class OperationRepository @Inject constructor(
             response = budget.copy(
                 operations = budget.operations + operation
             )
+        } catch (e: HttpException) {
+            Log.e("OperationRepository", "HTTP code: ${e.code()}")
+            if(e.code() == 401)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
+            return Resource.Error()
+        } catch (e: ConnectException) {
+            Log.e("AuthRepository", "Cannot connect to the server!")
+            return Resource.Error(
+                authResult = AuthResult.Error("Cannot connect to the server!")
+            )
         } catch (e: Exception) {
-            return Resource.Error("An error occurred during posting the BudgetOperation.")
+            Log.e("OperationRepository", "postOperation: ", e)
+            return Resource.Error()
         }
         return Resource.Success(response)
     }
@@ -60,7 +119,7 @@ class OperationRepository @Inject constructor(
         try {
             if(operation.id < 0)
                 throw Exception("invalid BudgetOperation id")
-            api.putOperation(auth, budget.id, operation.id,
+            api.putOperation(budget.id, operation.id,
                 BudgetOperationDTO(
                     operation.id,
                     operation.name,
@@ -69,17 +128,43 @@ class OperationRepository @Inject constructor(
                     operation.value
                 )
             )
+        } catch (e: HttpException) {
+            Log.e("OperationRepository", "HTTP code: ${e.code()}")
+            if(e.code() == 401)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
+            return Resource.Error()
+        } catch (e: ConnectException) {
+            Log.e("AuthRepository", "Cannot connect to the server!")
+            return Resource.Error(
+                authResult = AuthResult.Error("Cannot connect to the server!")
+            )
         } catch (e: Exception) {
-            return Resource.Error("An error occurred during updating BudgetOperation.")
+            Log.e("OperationRepository", "putOperations: ", e)
+            return Resource.Error()
         }
         return Resource.Success("BudgetOperation successfully updated!")
     }
 
     suspend fun deleteOperation(budget: Budget, operation: Operation) : Resource<String> {
         try {
-            api.deleteOperation(auth, budget.id, operation.id)
+            api.deleteOperation(budget.id, operation.id)
+        } catch (e: HttpException) {
+            Log.e("OperationRepository", "HTTP code: ${e.code()}")
+            if(e.code() == 401)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
+            return Resource.Error()
+        } catch (e: ConnectException) {
+            Log.e("AuthRepository", "Cannot connect to the server!")
+            return Resource.Error(
+                authResult = AuthResult.Error("Cannot connect to the server!")
+            )
         } catch (e: Exception) {
-            return Resource.Error("An error occurred during deleting BudgetOperation.")
+            Log.e("OperationRepository", "deleteOperation: ", e)
+            return Resource.Error()
         }
         return Resource.Success("BudgetOperation successfully deleted!")
     }

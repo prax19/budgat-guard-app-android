@@ -14,6 +14,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.prax19.budgetguard.app.android.presentation.budget_details.BudgetDetailsScreen
 import com.prax19.budgetguard.app.android.presentation.main_screen.MainScreen
+import com.prax19.budgetguard.app.android.presentation.sign_in.SignInScreen
+import com.prax19.budgetguard.app.android.presentation.sign_up.SignUpScreen
 import com.prax19.budgetguard.app.android.ui.theme.BudgetGuardTheme
 import com.prax19.budgetguard.app.android.util.Screen
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,10 +38,10 @@ class MainActivity : ComponentActivity() {
                     val navConstoller = rememberNavController()
                     NavHost(
                         navController = navConstoller,
-                        startDestination = Screen.MainScreen.route
+                        startDestination = Screen.SignInScreen.route
                     ) {
                         composable(route = Screen.MainScreen.route) {
-                            MainScreen(navController = navConstoller)
+                            MainScreen(navConstoller)
                         }
                         composable(
                             route = Screen.BudgetDetailsScreen.route +
@@ -53,7 +55,13 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         ) {
-                            BudgetDetailsScreen()
+                            BudgetDetailsScreen(navConstoller)
+                        }
+                        composable(route = Screen.SignInScreen.route) {
+                            SignInScreen(navConstoller)
+                        }
+                        composable(route = Screen.EditUserDetailsScreen.route) {
+                            SignUpScreen(navConstoller)
                         }
                     }
                 }
