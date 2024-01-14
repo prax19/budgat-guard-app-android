@@ -3,21 +3,27 @@ package com.prax19.budgetguard.app.android.presentation.budget_details
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.InputChip
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.prax19.budgetguard.app.android.data.dto.BudgetOperationDTO
 import com.prax19.budgetguard.app.android.data.model.Operation
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 //TODO: prevent from entering empty data
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,7 +96,14 @@ fun AddEditOperationDialog(
             mutableStateOf(operationTypes[1])
     }
 
-    val dateTime by remember { mutableStateOf(LocalDateTime.now()) }
+    var openDatePicker by remember { mutableStateOf(false) }
+    var openTimePicker by remember { mutableStateOf(false) }
+
+    var dateTime by remember { mutableStateOf(LocalDateTime.parse(defaultOperation.dateTime)) }
+    val timePickerState = rememberTimePickerState(dateTime.hour, dateTime.minute)
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = dateTime.toEpochSecond(ZoneOffset.UTC) * 1000
+    )
 
     var value by remember {
         if(defaultOperation.value == 0f)
@@ -116,6 +131,17 @@ fun AddEditOperationDialog(
                                 modifier = Modifier
                                     .focusRequester(saveButtonFocusRequester),
                                 onClick = {
+                                    datePickerState.selectedDateMillis?.let {
+                                        dateTime = LocalDateTime.ofInstant(
+                                            Instant.ofEpochMilli(
+                                                it
+                                            ),
+                                            ZoneOffset.UTC
+                                        )
+                                        dateTime = dateTime
+                                            .plusHours(timePickerState.hour.toLong())
+                                            .plusMinutes(timePickerState.minute.toLong())
+                                    }
                                     val valueFloat = if (selectedType == operationTypes[0])
                                         value.toFloat() * -1
                                     else
@@ -195,6 +221,23 @@ fun AddEditOperationDialog(
                                 )
                             )
 
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            ) {
+                                OutlinedButton(onClick = { openDatePicker = true }) {
+                                    Text("change date")
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                OutlinedButton(onClick = { openTimePicker = true }) {
+                                    Text("change time")
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
                             OutlinedTextField(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -226,6 +269,31 @@ fun AddEditOperationDialog(
                             )
                         }
                     }
+                }
+            )
+        }
+    }
+
+    when {
+        openDatePicker -> {
+            DatePickerDialog(
+                datePickerState = datePickerState,
+                onApply = {
+                    openDatePicker = false
+                },
+                onDismiss = {
+                    openDatePicker = false
+                }
+            )
+        }
+        openTimePicker -> {
+            TimePickerDialog(
+                timePickerState = timePickerState,
+                onApply = {
+                    openTimePicker = false
+                },
+                onDismiss = {
+                    openTimePicker = false
                 }
             )
         }

@@ -119,6 +119,8 @@ fun BudgetDetailsScreen(navController: NavController) {
             CircularProgressIndicator()
         }
 
+
+
     budget?.let {
         when {
             openAddEditOperation.value ->
@@ -302,7 +304,7 @@ fun BudgetOperationItem(
                         style = MaterialTheme.typography.bodySmall
                     )
                     Text(
-                        text = "prax19 • 16.12.2018",
+                        text = "prax19 • ${operation.dateTime.toLocalDate()}",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
