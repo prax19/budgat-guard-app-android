@@ -40,10 +40,12 @@ class AuthRepository @Inject constructor(
             AuthResult.Authorized()
         } catch (e: HttpException) {
             Log.e("AuthRepository", "HTTP code: ${e.code()}")
-            if(e.code() == 403) //TODO: update this to 401 in the backend
+            if(e.code() == 401) //TODO: update this to 401 in the backend
                 AuthResult.Unauthorized()
             else if(e.code() == 404)
                 AuthResult.UserNotFound()
+            else if(e.code() == 500)
+                AuthResult.Error("Internal server error")
             else
                 AuthResult.Error()
         } catch (e: Exception) {

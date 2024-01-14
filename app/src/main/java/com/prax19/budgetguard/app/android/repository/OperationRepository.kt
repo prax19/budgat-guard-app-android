@@ -7,6 +7,7 @@ import com.prax19.budgetguard.app.android.data.model.Budget
 import com.prax19.budgetguard.app.android.data.model.Operation
 import com.prax19.budgetguard.app.android.util.Resource
 import dagger.hilt.android.scopes.ActivityScoped
+import retrofit2.HttpException
 import javax.inject.Inject
 
 @ActivityScoped
@@ -24,7 +25,9 @@ class OperationRepository @Inject constructor(
                     it.value
                 )
             }
-
+        } catch (e: HttpException) {
+            Log.e("OperationRepository", "HTTP code: ${e.code()}")
+            return Resource.Error()
         } catch (e: Exception) {
             Log.e("OperationRepository", "getAllOperations: ", e)
             return Resource.Error()
@@ -47,6 +50,9 @@ class OperationRepository @Inject constructor(
             response = budget.copy(
                 operations = budget.operations + operation
             )
+        } catch (e: HttpException) {
+            Log.e("OperationRepository", "HTTP code: ${e.code()}")
+            return Resource.Error()
         } catch (e: Exception) {
             Log.e("OperationRepository", "postOperation: ", e)
             return Resource.Error()
@@ -68,6 +74,9 @@ class OperationRepository @Inject constructor(
                     operation.value
                 )
             )
+        } catch (e: HttpException) {
+            Log.e("OperationRepository", "HTTP code: ${e.code()}")
+            return Resource.Error()
         } catch (e: Exception) {
             Log.e("OperationRepository", "putOperations: ", e)
             return Resource.Error()
@@ -78,6 +87,9 @@ class OperationRepository @Inject constructor(
     suspend fun deleteOperation(budget: Budget, operation: Operation) : Resource<String> {
         try {
             api.deleteOperation(budget.id, operation.id)
+        } catch (e: HttpException) {
+            Log.e("OperationRepository", "HTTP code: ${e.code()}")
+            return Resource.Error()
         } catch (e: Exception) {
             Log.e("OperationRepository", "deleteOperation: ", e)
             return Resource.Error()

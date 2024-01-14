@@ -6,6 +6,7 @@ import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
 import com.prax19.budgetguard.app.android.data.model.Budget
 import com.prax19.budgetguard.app.android.util.Resource
 import dagger.hilt.android.scopes.ActivityScoped
+import retrofit2.HttpException
 import javax.inject.Inject
 
 @ActivityScoped
@@ -27,6 +28,9 @@ class BudgetRepository @Inject constructor(
             response.map {
                 it.copy(operations = operationRepository.getAllOperations(it).data!!)
             }
+        } catch (e: HttpException) {
+            Log.e("BudgetRepository", "HTTP code: ${e.code()}")
+            return Resource.Error()
         } catch (e: Exception) {
             Log.e("BudgetRepository", "getAllBudgets: ", e)
             return Resource.Error()
@@ -48,6 +52,9 @@ class BudgetRepository @Inject constructor(
             response.let {
                 it.copy(operations = operationRepository.getAllOperations(it).data!!)
             }
+        } catch (e: HttpException) {
+            Log.e("BudgetRepository", "HTTP code: ${e.code()}")
+            return Resource.Error()
         } catch (e: Exception) {
             Log.e("BudgetRepository", "getBudget: ", e)
             return Resource.Error()
@@ -65,6 +72,9 @@ class BudgetRepository @Inject constructor(
                     emptyList()
                 )
             )
+        } catch (e: HttpException) {
+            Log.e("BudgetRepository", "HTTP code: ${e.code()}")
+            return Resource.Error()
         } catch (e: Exception) {
             Log.e("BudgetRepository", "postBudget: ", e)
             return Resource.Error()
@@ -84,6 +94,9 @@ class BudgetRepository @Inject constructor(
                     emptyList() // operation list managed in OperationRepository
                 )
             )
+        } catch (e: HttpException) {
+            Log.e("BudgetRepository", "HTTP code: ${e.code()}")
+            return Resource.Error()
         } catch (e: Exception) {
             Log.e("BudgetRepository", "putBudget: ", e)
             return Resource.Error()
@@ -94,6 +107,9 @@ class BudgetRepository @Inject constructor(
     suspend fun deleteBudget(budget: Budget): Resource<String> {
         try {
             api.deleteBudget(budget.id)
+        } catch (e: HttpException) {
+            Log.e("BudgetRepository", "HTTP code: ${e.code()}")
+            return Resource.Error()
         } catch (e: Exception) {
             Log.e("BudgetRepository", "deleteBudget: ", e)
             return Resource.Error()
