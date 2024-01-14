@@ -2,6 +2,7 @@ package com.prax19.budgetguard.app.android.repository
 
 import android.util.Log
 import com.prax19.budgetguard.app.android.api.BudgetGuardApi
+import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.data.dto.BudgetOperationDTO
 import com.prax19.budgetguard.app.android.data.model.Budget
 import com.prax19.budgetguard.app.android.data.model.Operation
@@ -27,6 +28,10 @@ class OperationRepository @Inject constructor(
             }
         } catch (e: HttpException) {
             Log.e("OperationRepository", "HTTP code: ${e.code()}")
+            if(e.code() == 401)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
             return Resource.Error()
         } catch (e: Exception) {
             Log.e("OperationRepository", "getAllOperations: ", e)
@@ -52,6 +57,10 @@ class OperationRepository @Inject constructor(
             )
         } catch (e: HttpException) {
             Log.e("OperationRepository", "HTTP code: ${e.code()}")
+            if(e.code() == 401)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
             return Resource.Error()
         } catch (e: Exception) {
             Log.e("OperationRepository", "postOperation: ", e)
@@ -76,6 +85,10 @@ class OperationRepository @Inject constructor(
             )
         } catch (e: HttpException) {
             Log.e("OperationRepository", "HTTP code: ${e.code()}")
+            if(e.code() == 401)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
             return Resource.Error()
         } catch (e: Exception) {
             Log.e("OperationRepository", "putOperations: ", e)
@@ -89,6 +102,10 @@ class OperationRepository @Inject constructor(
             api.deleteOperation(budget.id, operation.id)
         } catch (e: HttpException) {
             Log.e("OperationRepository", "HTTP code: ${e.code()}")
+            if(e.code() == 401)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
             return Resource.Error()
         } catch (e: Exception) {
             Log.e("OperationRepository", "deleteOperation: ", e)

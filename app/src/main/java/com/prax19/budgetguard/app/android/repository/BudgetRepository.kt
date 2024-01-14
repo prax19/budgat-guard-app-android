@@ -2,6 +2,7 @@ package com.prax19.budgetguard.app.android.repository
 
 import android.util.Log
 import com.prax19.budgetguard.app.android.api.BudgetGuardApi
+import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.data.dto.BudgetDTO
 import com.prax19.budgetguard.app.android.data.model.Budget
 import com.prax19.budgetguard.app.android.util.Resource
@@ -30,6 +31,10 @@ class BudgetRepository @Inject constructor(
             }
         } catch (e: HttpException) {
             Log.e("BudgetRepository", "HTTP code: ${e.code()}")
+            if(e.code() == 401)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
             return Resource.Error()
         } catch (e: Exception) {
             Log.e("BudgetRepository", "getAllBudgets: ", e)
@@ -54,6 +59,10 @@ class BudgetRepository @Inject constructor(
             }
         } catch (e: HttpException) {
             Log.e("BudgetRepository", "HTTP code: ${e.code()}")
+            if(e.code() == 401)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
             return Resource.Error()
         } catch (e: Exception) {
             Log.e("BudgetRepository", "getBudget: ", e)
@@ -74,6 +83,10 @@ class BudgetRepository @Inject constructor(
             )
         } catch (e: HttpException) {
             Log.e("BudgetRepository", "HTTP code: ${e.code()}")
+            if(e.code() == 401)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
             return Resource.Error()
         } catch (e: Exception) {
             Log.e("BudgetRepository", "postBudget: ", e)
@@ -96,6 +109,10 @@ class BudgetRepository @Inject constructor(
             )
         } catch (e: HttpException) {
             Log.e("BudgetRepository", "HTTP code: ${e.code()}")
+            if(e.code() == 401)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
             return Resource.Error()
         } catch (e: Exception) {
             Log.e("BudgetRepository", "putBudget: ", e)
@@ -109,6 +126,10 @@ class BudgetRepository @Inject constructor(
             api.deleteBudget(budget.id)
         } catch (e: HttpException) {
             Log.e("BudgetRepository", "HTTP code: ${e.code()}")
+            if(e.code() == 401)
+                return Resource.Error(
+                    authResult = AuthResult.Unauthorized()
+                )
             return Resource.Error()
         } catch (e: Exception) {
             Log.e("BudgetRepository", "deleteBudget: ", e)

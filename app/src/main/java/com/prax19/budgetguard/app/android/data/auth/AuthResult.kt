@@ -7,7 +7,7 @@ sealed class AuthResult<T>(val data: T? = null, val message: String? = null) {
     ): AuthResult<T>(data)
 
     class Unauthorized<T>(
-        message: String = "User not authorized!"
+        message: String? = "User not authorized!"
     ): AuthResult<T>(message = message)
 
     class UserNotFound<T>(

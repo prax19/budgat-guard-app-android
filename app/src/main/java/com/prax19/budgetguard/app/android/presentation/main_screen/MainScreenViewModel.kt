@@ -5,9 +5,12 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.data.model.Budget
 import com.prax19.budgetguard.app.android.repository.BudgetRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,6 +21,9 @@ class MainScreenViewModel @Inject constructor(
 
     private val _state = mutableStateOf(ListOfBudgetsState())
     val state: State<ListOfBudgetsState> = _state
+
+    private val authErrorChanel = Channel<AuthResult<Unit>>()
+    val authErrors = authErrorChanel.receiveAsFlow()
 
     init {
         loadBudgets()
