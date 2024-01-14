@@ -10,6 +10,7 @@ import com.prax19.budgetguard.app.android.util.Resource
 import dagger.hilt.android.scopes.ActivityScoped
 import retrofit2.HttpException
 import java.net.ConnectException
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @ActivityScoped
@@ -23,6 +24,7 @@ class OperationRepository @Inject constructor(
                     it.id,
                     it.name,
                     budget,
+                    LocalDateTime.parse(it.dateTime),
                     it.userId,
                     it.value
                 )
@@ -53,6 +55,7 @@ class OperationRepository @Inject constructor(
                     id,
                     it.name,
                     budget,
+                    LocalDateTime.parse(it.dateTime),
                     it.userId,
                     it.value
                 )
@@ -88,6 +91,7 @@ class OperationRepository @Inject constructor(
                     -1,
                     operation.name,
                     budget.id,
+                    operation.dateTime.toString(),
                     budget.ownerId, //TODO: handle user
                     operation.value
                 )
@@ -124,6 +128,7 @@ class OperationRepository @Inject constructor(
                     operation.id,
                     operation.name,
                     budget.id,
+                    operation.dateTime.toString(),
                     operation.userId,
                     operation.value
                 )

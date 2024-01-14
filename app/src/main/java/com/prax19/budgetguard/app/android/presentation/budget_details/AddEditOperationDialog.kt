@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.prax19.budgetguard.app.android.data.dto.BudgetOperationDTO
 import com.prax19.budgetguard.app.android.data.model.Operation
+import java.time.LocalDateTime
 
 //TODO: prevent from entering empty data
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,13 +61,14 @@ fun AddEditOperationDialog(
                     operation.id,
                     operation.name,
                     operation.budget.id,
+                    operation.dateTime.toString(),
                     operation.userId,
                     operation.value
                 )
             )
         } ?: run {
             mutableStateOf(
-                BudgetOperationDTO(-1, "", -1, -1, 0f))
+                BudgetOperationDTO(-1, "", -1, LocalDateTime.now().toString(), -1, 0f))
         }
     }
 
@@ -78,17 +80,15 @@ fun AddEditOperationDialog(
     val operationTypes = listOf("expense", "income")
     var selectedType by remember {
         if(defaultOperation.value < 0) {
-            defaultOperation = BudgetOperationDTO(
-                defaultOperation.id,
-                defaultOperation.name,
-                defaultOperation.budgetId,
-                defaultOperation.userId,
-                defaultOperation.value * -1
+            defaultOperation = defaultOperation.copy(
+                value = defaultOperation.value * -1
             )
             mutableStateOf(operationTypes[0])
         } else
             mutableStateOf(operationTypes[1])
     }
+
+    val dateTime by remember { mutableStateOf(LocalDateTime.now()) }
 
     var value by remember {
         if(defaultOperation.value == 0f)
@@ -125,6 +125,7 @@ fun AddEditOperationDialog(
                                             defaultOperation.id,
                                             name,
                                             defaultOperation.budgetId,
+                                            dateTime.toString(),
                                             defaultOperation.userId,
                                             valueFloat
                                         )

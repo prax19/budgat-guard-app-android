@@ -4,6 +4,7 @@ data class BudgetOperationDTO(
     val id: Long,
     val name: String,
     val budgetId: Long,
+    val dateTime: String,
     val userId: Long,
     val value: Float
 )

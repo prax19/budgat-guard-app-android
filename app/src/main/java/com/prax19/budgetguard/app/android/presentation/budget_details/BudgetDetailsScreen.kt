@@ -44,6 +44,7 @@ import com.prax19.budgetguard.app.android.data.model.Operation
 import com.prax19.budgetguard.app.android.presentation.utils.ContextActions
 import com.prax19.budgetguard.app.android.presentation.utils.Selectable
 import com.prax19.budgetguard.app.android.util.Screen
+import java.time.LocalDateTime
 
 //TODO: prevent from entering empty data
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,7 +71,7 @@ fun BudgetDetailsScreen(navController: NavController) {
                 is AuthResult.Unauthorized -> {
                     Toast.makeText(
                         context,
-                        "User unauthorised!",
+                        "User unauthorized!",
                         Toast.LENGTH_LONG
                     ).show()
                     navController.navigate(Screen.SignInScreen.route) {
@@ -118,7 +119,6 @@ fun BudgetDetailsScreen(navController: NavController) {
             CircularProgressIndicator()
         }
 
-
     budget?.let {
         when {
             openAddEditOperation.value ->
@@ -129,6 +129,7 @@ fun BudgetDetailsScreen(navController: NavController) {
                                 operation.id,
                                 operation.name,
                                 budget,
+                                LocalDateTime.parse(operation.dateTime),
                                 budget.ownerId,
                                 operation.value
                             ) //TODO: handle user
@@ -142,6 +143,7 @@ fun BudgetDetailsScreen(navController: NavController) {
                                 operation.id,
                                 operation.name,
                                 budget,
+                                LocalDateTime.parse(operation.dateTime),
                                 budget.ownerId,
                                 operation.value
                             ) //TODO: handle user
