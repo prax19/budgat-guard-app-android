@@ -24,7 +24,8 @@ class BudgetRepository @Inject constructor(
                     it.id,
                     it.name,
                     it.ownerId,
-                    emptyList()
+                    emptyList(),
+                    it.balance
                 )
             }
             response.map {
@@ -57,7 +58,8 @@ class BudgetRepository @Inject constructor(
                     it.id,
                     it.name,
                     it.ownerId,
-                    emptyList()
+                    emptyList(),
+                    it.balance
                 )
             }
             response.let {

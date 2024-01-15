@@ -53,7 +53,8 @@ class BudgetDetailsScreenViewModel @Inject constructor(
                     it.id,
                     it.name,
                     it.ownerId,
-                    emptyList()
+                    emptyList(),
+                    it.balance
                 )
                 operationsRepository.getAllOperations(budget).data?.let { operations ->
                     budget = budget.copy(

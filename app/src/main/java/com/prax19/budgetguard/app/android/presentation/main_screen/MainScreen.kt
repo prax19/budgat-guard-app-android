@@ -35,9 +35,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.data.model.Budget
@@ -60,6 +62,18 @@ fun MainScreen(navController: NavController) {
 
     val onCloseContextAction: () -> Unit = {
         contextActionsBudgetId = null
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleState = lifecycleOwner.lifecycle.currentState
+
+    LaunchedEffect(lifecycleState) {
+        when (lifecycleState) {
+            Lifecycle.State.RESUMED -> {
+                viewModel.loadBudgets()
+            }
+            else -> {}
+        }
     }
 
     val context = LocalContext.current
@@ -230,13 +244,21 @@ fun BudgetItem( //TODO: add more details to items
             onClick = onClick,
             onLongClick = onLongClick
         ) {
-            Text(
-                style = MaterialTheme.typography.titleSmall,
+            Column(
                 modifier = Modifier
-                    .padding(16.dp),
-                text = budget.name,
-                textAlign = TextAlign.Start
-            )
+                    .padding(16.dp)
+            ) {
+                Text(
+                    style = MaterialTheme.typography.titleSmall,
+                    text = budget.name,
+                    textAlign = TextAlign.Start
+                )
+                Text(
+                    style = MaterialTheme.typography.bodyMedium,
+                    text = "%.2f".format(budget.balance),
+                    textAlign = TextAlign.Start
+                )
+            }
         }
     }
 }

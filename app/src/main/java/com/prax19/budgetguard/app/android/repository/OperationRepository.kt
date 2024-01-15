@@ -28,7 +28,7 @@ class OperationRepository @Inject constructor(
                     it.userId,
                     it.value
                 )
-            }.reversed() // cursed but works
+            }
         } catch (e: HttpException) {
             Log.e("OperationRepository", "HTTP code: ${e.code()}")
             if(e.code() == 401)
