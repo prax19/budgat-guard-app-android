@@ -180,6 +180,7 @@ fun BudgetDetailsScreen(navController: NavController) {
                                     //TODO: add operation deletion dialog
                                     viewModel.deleteOperation(viewModel.getOperationById(contextActionsOperationId)!!)
                                 }
+                                contextActionsOperationId = null
                             },
                             contextActionsOperationId != null
                         )
@@ -225,7 +226,7 @@ fun BudgetDetailsScreen(navController: NavController) {
                                     )
                                 }
                             }
-                            items(budget.operations) { operation ->
+                            items(budget.operations) {operation ->
                                 BudgetOperationItem(
                                     operation = operation,
                                     onClick = {

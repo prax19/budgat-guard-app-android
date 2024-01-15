@@ -142,6 +142,7 @@ fun MainScreen(navController: NavController) {
                                 //TODO: add budget deletion dialog
                                 viewModel.deleteBudget(viewModel.getBudgetById(it)!!)
                             }
+                            contextActionsBudgetId = null
                         },
                         contextActionsBudgetId != null
                     )
