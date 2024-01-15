@@ -86,6 +86,7 @@ fun AddEditBudgetDialog(
                             TextButton(
                                 modifier = Modifier
                                     .focusRequester(saveButtonFocusRequester),
+                                enabled = name.isNotBlank(),
                                 onClick = {
                                     //TODO: make budget constructors into single one
                                     val returnBudget =

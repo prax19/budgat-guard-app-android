@@ -130,6 +130,7 @@ fun AddEditOperationDialog(
                             TextButton(
                                 modifier = Modifier
                                     .focusRequester(saveButtonFocusRequester),
+                                enabled = name.isNotBlank() && value.isNotBlank(),
                                 onClick = {
                                     datePickerState.selectedDateMillis?.let {
                                         dateTime = LocalDateTime.ofInstant(
