@@ -87,7 +87,7 @@ fun AddEditOperationDialog(
 
     val operationTypes = listOf("expense", "income")
     var selectedType by remember {
-        if(defaultOperation.value < 0) {
+        if(defaultOperation.value <= 0) {
             defaultOperation = defaultOperation.copy(
                 value = defaultOperation.value * -1
             )
