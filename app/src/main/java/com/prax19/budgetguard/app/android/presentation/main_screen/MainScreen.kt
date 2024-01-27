@@ -164,7 +164,7 @@ fun MainScreen(navController: NavController) {
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            FloatingActionButton( //TODO: show / hide animation
                 onClick = {
                     openAddEditBudget.value = true
                     onCloseContextAction()

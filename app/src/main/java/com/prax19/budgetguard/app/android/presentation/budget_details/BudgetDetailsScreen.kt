@@ -46,7 +46,6 @@ import com.prax19.budgetguard.app.android.presentation.utils.Selectable
 import com.prax19.budgetguard.app.android.util.Screen
 import java.time.LocalDateTime
 
-//TODO: prevent from entering empty data
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -110,15 +109,6 @@ fun BudgetDetailsScreen(navController: NavController) {
         }
     }
 
-    if(isLoading)
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ){
-            CircularProgressIndicator()
-        }
-
     budget?.let {
         when {
             openAddEditOperation.value ->
@@ -137,7 +127,7 @@ fun BudgetDetailsScreen(navController: NavController) {
                         openAddEditOperation.value = false
                         onCloseContextAction()
                     },
-                    onOperationEdition = {operation ->
+                    onOperationEdition = { operation ->
                         viewModel.editOperation(
                             Operation(
                                 operation.id,
@@ -158,57 +148,69 @@ fun BudgetDetailsScreen(navController: NavController) {
                     operation = viewModel.getOperationById(contextActionsOperationId)
                 )
         }
+    }
 
-        Scaffold(
-            modifier = Modifier
-                .fillMaxSize()
-                .pointerInput(onCloseContextAction) { detectTapGestures { onCloseContextAction() } },
-            topBar = {
-                TopAppBar(
-                    title = {
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(onCloseContextAction) { detectTapGestures { onCloseContextAction() } },
+        topBar = {
+            TopAppBar(
+                title = {
+                    budget?.let {
                         Text(text = budget.name)
-                    },
-                    actions = {
-                        ContextActions(
-                            onClickEdit = {
-                                contextActionsOperationId?.let {
-                                    openAddEditOperation.value = true
-                                }
-                            },
-                            onClickDelete = {
-                                contextActionsOperationId?.let {
-                                    //TODO: add operation deletion dialog
-                                    viewModel.deleteOperation(viewModel.getOperationById(contextActionsOperationId)!!)
-                                }
-                                contextActionsOperationId = null
-                            },
-                            contextActionsOperationId != null
-                        )
                     }
-                )
-            },
-            floatingActionButton =
-            {
-                FloatingActionButton(
-                    onClick = {
-                        openAddEditOperation.value = true
-                        onCloseContextAction()
-                    },
-                    content = {
-                        Icon(
-                            Icons.Filled.Add,
-                            "Add new operation"
-                        )
-                    }
-                )
-            },
-            content = {
-                Column(
+                },
+                actions = {
+                    ContextActions(
+                        onClickEdit = {
+                            contextActionsOperationId?.let {
+                                openAddEditOperation.value = true
+                            }
+                        },
+                        onClickDelete = {
+                            contextActionsOperationId?.let {
+                                //TODO: add operation deletion dialog
+                                viewModel.deleteOperation(viewModel.getOperationById(contextActionsOperationId)!!)
+                            }
+                            contextActionsOperationId = null
+                        },
+                        contextActionsOperationId != null
+                    )
+                }
+            )
+        },
+        floatingActionButton =
+        {
+            FloatingActionButton( //TODO: show / hide animation
+                onClick = {
+                    openAddEditOperation.value = true
+                    onCloseContextAction()
+                },
+                content = {
+                    Icon(
+                        Icons.Filled.Add,
+                        "Add new operation"
+                    )
+                }
+            )
+        },
+        content = {
+            if(isLoading)
+                Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = it.calculateBottomPadding())
-                        .padding(top = it.calculateTopPadding()),
-                ) {
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ){
+                    CircularProgressIndicator()
+                }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = it.calculateBottomPadding())
+                    .padding(top = it.calculateTopPadding()),
+            ) {
+                budget?.let {
                     when(budget.operations.isEmpty() && !isLoading) {
                         true -> {
                             Box(
@@ -255,8 +257,8 @@ fun BudgetDetailsScreen(navController: NavController) {
                     }
                 }
             }
-        )
-    }
+        }
+    )
 }
 
 @Composable

@@ -96,39 +96,34 @@ class BudgetDetailsScreenViewModel @Inject constructor(
 
     fun createOperation(operation: Operation) {
         viewModelScope.launch {
-            _budgetState.value = budgetState.value.copy(isLoading = true)
             budgetState.value.budget?.let {
                 val result = operationsRepository.postOperation(
                     it, operation
                 )
-                suspend { refreshBudget() }.invoke() // TODO: test if it is necessary
+                suspend { refreshBudget() }.invoke()
                 result.authResult?.let {
                     resultChanel.send(it)
                 }
             }
-            _budgetState.value = budgetState.value.copy(isLoading = false)
         }
     }
 
     fun editOperation(operation: Operation) {
         viewModelScope.launch {
-            _budgetState.value = budgetState.value.copy(isLoading = true)
             budgetState.value.budget?.let {
                 val result = operationsRepository.putOperations(
                     it, operation
                 )
-                suspend { refreshBudget() }.invoke() // TODO: test if it is necessary
+                suspend { refreshBudget() }.invoke()
                 result.authResult?.let {
                     resultChanel.send(it)
                 }
             }
-            _budgetState.value = budgetState.value.copy(isLoading = false)
         }
     }
 
     fun deleteOperation(operation: Operation) {
         viewModelScope.launch {
-            _budgetState.value = budgetState.value.copy(isLoading = true)
             budgetState.value.budget?.let {
                 val result = operationsRepository.deleteOperation(
                     it, operation
@@ -138,7 +133,6 @@ class BudgetDetailsScreenViewModel @Inject constructor(
                     resultChanel.send(it)
                 }
             }
-            _budgetState.value = budgetState.value.copy(isLoading = false)
         }
 
     }
