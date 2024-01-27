@@ -2,6 +2,9 @@ package com.prax19.budgetguard.app.android.presentation.main_screen
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -57,6 +60,7 @@ fun MainScreen(navController: NavController) {
     val viewModel: MainScreenViewModel = hiltViewModel()
     val budgets = viewModel.state.value.budgets
     val isLoading = viewModel.state.value.isLoading
+    val isViewReady = viewModel.state.value.isViewReady
 
     val openAddEditBudget = remember { mutableStateOf(false) }
 
@@ -71,6 +75,9 @@ fun MainScreen(navController: NavController) {
 
     LaunchedEffect(lifecycleState) {
         when (lifecycleState) {
+            Lifecycle.State.CREATED -> {
+                viewModel.markViewAsNotReady()
+            }
             Lifecycle.State.RESUMED -> {
                 viewModel.loadBudgets()
             }
@@ -164,15 +171,22 @@ fun MainScreen(navController: NavController) {
             )
         },
         floatingActionButton = {
-            FloatingActionButton( //TODO: show / hide animation
-                onClick = {
-                    openAddEditBudget.value = true
-                    onCloseContextAction()
-                },
+            AnimatedVisibility(
+                enter = scaleIn(),
+                exit = scaleOut(),
+                visible = isViewReady,
                 content = {
-                    Icon(
-                        Icons.Filled.Add,
-                        "Add new budget"
+                    FloatingActionButton(
+                        onClick = {
+                            openAddEditBudget.value = true
+                            onCloseContextAction()
+                        },
+                        content = {
+                            Icon(
+                                Icons.Filled.Add,
+                                "Add new budget"
+                            )
+                        }
                     )
                 }
             )
@@ -214,7 +228,7 @@ fun MainScreen(navController: NavController) {
                     .padding(top = it.calculateTopPadding())
             ) {
                 budgets?.let {
-                    when(it.isEmpty() && !isLoading) {
+                    when(it.isEmpty() && isViewReady) {
                         true -> {
                             Box(
                                 modifier = Modifier

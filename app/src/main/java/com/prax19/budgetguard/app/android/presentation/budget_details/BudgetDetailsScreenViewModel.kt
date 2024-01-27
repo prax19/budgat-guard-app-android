@@ -20,18 +20,18 @@ import javax.inject.Inject
 class BudgetDetailsScreenViewModel @Inject constructor(
     private val operationsRepository: OperationRepository,
     private val budgetRepository: BudgetRepository,
-    savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    private val _budgetState = mutableStateOf(BudgetState())
-    val budgetState: State<BudgetState> = _budgetState
+    private val _state = mutableStateOf(BudgetState())
+    val state: State<BudgetState> = _state
 
     private val resultChanel = Channel<AuthResult<*>>()
     val results = resultChanel.receiveAsFlow()
 
     private val budgetId: Long? = null
 
-    init {
+    fun loadBudget() {
         savedStateHandle.get<Long>("budgetId")?.let { budgetId ->
             if(budgetId != -1L) {
                 viewModelScope.launch {
@@ -43,7 +43,7 @@ class BudgetDetailsScreenViewModel @Inject constructor(
 
     fun loadBudget(budgetId: Long) {
         viewModelScope.launch {
-            _budgetState.value = budgetState.value.copy(isLoading = true)
+            _state.value = state.value.copy(isLoading = true)
 
             val result = budgetRepository.getBudget(budgetId)
 
@@ -62,19 +62,22 @@ class BudgetDetailsScreenViewModel @Inject constructor(
                     )
                 }
 
-                _budgetState.value = budgetState.value.copy(
+                _state.value = state.value.copy(
                     budget = budget
                 )
             }
             result.authResult?.let {
                 resultChanel.send(it)
             }
-            _budgetState.value = budgetState.value.copy(isLoading = false)
+            _state.value = state.value.copy(
+                isLoading = false,
+                isViewReady = true
+            )
         }
     }
 
     private fun refreshBudget() {
-        budgetState.value.budget?.let {
+        state.value.budget?.let {
             loadBudget(it.id)
         }
     }
@@ -83,7 +86,7 @@ class BudgetDetailsScreenViewModel @Inject constructor(
         id?.let {
             if(id < 0)
                 return null
-            val operations = budgetState.value.budget?.operations
+            val operations = state.value.budget?.operations
             operations?.let {
                 for(operation: Operation in it) {
                     if(operation.id == id)
@@ -96,7 +99,7 @@ class BudgetDetailsScreenViewModel @Inject constructor(
 
     fun createOperation(operation: Operation) {
         viewModelScope.launch {
-            budgetState.value.budget?.let {
+            state.value.budget?.let {
                 val result = operationsRepository.postOperation(
                     it, operation
                 )
@@ -110,7 +113,7 @@ class BudgetDetailsScreenViewModel @Inject constructor(
 
     fun editOperation(operation: Operation) {
         viewModelScope.launch {
-            budgetState.value.budget?.let {
+            state.value.budget?.let {
                 val result = operationsRepository.putOperations(
                     it, operation
                 )
@@ -124,7 +127,7 @@ class BudgetDetailsScreenViewModel @Inject constructor(
 
     fun deleteOperation(operation: Operation) {
         viewModelScope.launch {
-            budgetState.value.budget?.let {
+            state.value.budget?.let {
                 val result = operationsRepository.deleteOperation(
                     it, operation
                 )
@@ -137,9 +140,14 @@ class BudgetDetailsScreenViewModel @Inject constructor(
 
     }
 
+    fun markViewAsNotReady() {
+        _state.value = state.value.copy(isViewReady = false)
+    }
+
     data class BudgetState(
         val budget: Budget? = null,
-        val isLoading: Boolean = false
+        val isLoading: Boolean = false,
+        val isViewReady: Boolean = false
     )
 
 }

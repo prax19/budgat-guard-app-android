@@ -2,6 +2,9 @@ package com.prax19.budgetguard.app.android.presentation.budget_details
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,8 +39,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.data.model.Operation
@@ -51,8 +56,9 @@ import java.time.LocalDateTime
 @Composable
 fun BudgetDetailsScreen(navController: NavController) {
     val viewModel: BudgetDetailsScreenViewModel = hiltViewModel()
-    val budget = viewModel.budgetState.value.budget
-    val isLoading = viewModel.budgetState.value.isLoading
+    val budget = viewModel.state.value.budget
+    val isLoading = viewModel.state.value.isLoading
+    val isViewReady = viewModel.state.value.isViewReady
 
     val openAddEditOperation = remember { mutableStateOf(false) }
 
@@ -61,6 +67,21 @@ fun BudgetDetailsScreen(navController: NavController) {
 
     val onCloseContextAction: () -> Unit = {
         contextActionsOperationId = null
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleState = lifecycleOwner.lifecycle.currentState
+
+    LaunchedEffect(lifecycleState) {
+        when (lifecycleState) {
+            Lifecycle.State.CREATED -> {
+                viewModel.markViewAsNotReady()
+            }
+            Lifecycle.State.RESUMED -> {
+                viewModel.loadBudget()
+            }
+            else -> {}
+        }
     }
 
     val context = LocalContext.current
@@ -182,15 +203,22 @@ fun BudgetDetailsScreen(navController: NavController) {
         },
         floatingActionButton =
         {
-            FloatingActionButton( //TODO: show / hide animation
-                onClick = {
-                    openAddEditOperation.value = true
-                    onCloseContextAction()
-                },
+            AnimatedVisibility(
+                enter = scaleIn(),
+                exit = scaleOut(),
+                visible = isViewReady,
                 content = {
-                    Icon(
-                        Icons.Filled.Add,
-                        "Add new operation"
+                    FloatingActionButton(
+                        onClick = {
+                            openAddEditOperation.value = true
+                            onCloseContextAction()
+                        },
+                        content = {
+                            Icon(
+                                Icons.Filled.Add,
+                                "Add new operation"
+                            )
+                        }
                     )
                 }
             )
@@ -211,7 +239,7 @@ fun BudgetDetailsScreen(navController: NavController) {
                     .padding(top = it.calculateTopPadding()),
             ) {
                 budget?.let {
-                    when(budget.operations.isEmpty() && !isLoading) {
+                    when(budget.operations.isEmpty() && isViewReady) {
                         true -> {
                             Box(
                                 modifier = Modifier

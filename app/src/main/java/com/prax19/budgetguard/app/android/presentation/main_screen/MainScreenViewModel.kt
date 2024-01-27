@@ -24,16 +24,13 @@ class MainScreenViewModel @Inject constructor(
     private val resultChannel = Channel<AuthResult<*>>()
     val results = resultChannel.receiveAsFlow()
 
-    init {
-        loadBudgets()
-    }
-
     fun loadBudgets() {
         viewModelScope.launch {
                 _state.value = state.value.copy(isLoading = true)
                 _state.value = state.value.copy(
                     budgets = repository.getAllBudgets().data,
-                    isLoading = false
+                    isLoading = false,
+                    isViewReady = true
                 )
         }
     }
@@ -61,7 +58,7 @@ class MainScreenViewModel @Inject constructor(
     fun createNewBudget(budget: Budget) {
         viewModelScope.launch {
             val result = repository.postBudget(budget)
-            suspend { refreshBudgets() }.invoke()
+            suspend { loadBudgets() }.invoke()
             result.authResult?.let {
                 resultChannel.send(it)
             }
@@ -88,9 +85,14 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
+    fun markViewAsNotReady() {
+        _state.value = state.value.copy(isViewReady = false)
+    }
+
     data class ListOfBudgetsState(
         val budgets: List<Budget> ?= emptyList(),
-        val isLoading: Boolean = false
+        val isLoading: Boolean = false,
+        val isViewReady: Boolean = false
     )
 
 }
