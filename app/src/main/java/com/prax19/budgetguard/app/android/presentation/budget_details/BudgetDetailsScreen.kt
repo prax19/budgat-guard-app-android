@@ -280,7 +280,10 @@ fun BudgetDetailsScreen(navController: NavController) {
                                                     .padding(bottom = 8.dp)
                                             ) {
                                                 Text(
-                                                    text = "Balance: %.2f zł".format(budget.balance),
+                                                    text = "Balance: %.2f %s".format(
+                                                        budget.balance,
+                                                        budget.currency.symbol
+                                                    ),
                                                     style = MaterialTheme.typography.titleMedium
                                                 )
                                             }
@@ -357,7 +360,10 @@ fun BudgetOperationItem(
                         else
                             MaterialTheme.colorScheme.primary
                     Text(
-                        text = "${"%.2f".format(operation.value)} zł",
+                        text = "%.2f %s".format(
+                            operation.value,
+                            operation.budget.currency.symbol
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = color
                     )
@@ -373,12 +379,16 @@ fun BudgetOperationItem(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+//                    Text(
+//                        text = "Category",
+//                        style = MaterialTheme.typography.bodySmall
+//                    )
+//                    Text(
+//                        text = "prax19 • ${operation.dateTime.toLocalDate()}",
+//                        style = MaterialTheme.typography.bodySmall
+//                    )
                     Text(
-                        text = "Category",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    Text(
-                        text = "prax19 • ${operation.dateTime.toLocalDate()}",
+                        text = "${operation.dateTime.toLocalDate()}",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }

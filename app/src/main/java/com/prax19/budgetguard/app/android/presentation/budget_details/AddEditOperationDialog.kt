@@ -256,7 +256,7 @@ fun AddEditOperationDialog(
                                     Text(text = "Value")
                                 },
                                 suffix = {
-                                    Text(text = "zł")
+                                    Text(text = "PLN") //TODO: handle currencies
                                 },
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Decimal,

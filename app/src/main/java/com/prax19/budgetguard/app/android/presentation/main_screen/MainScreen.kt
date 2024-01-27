@@ -300,7 +300,7 @@ fun BudgetItem( //TODO: add more details to items
                 )
                 Text(
                     style = MaterialTheme.typography.bodyMedium,
-                    text = "%.2f".format(budget.balance),
+                    text = "%.2f %s".format(budget.balance, budget.currency.symbol),
                     textAlign = TextAlign.Start
                 )
             }
