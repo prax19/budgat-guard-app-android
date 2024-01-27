@@ -209,38 +209,50 @@ fun BudgetDetailsScreen(navController: NavController) {
                         .padding(bottom = it.calculateBottomPadding())
                         .padding(top = it.calculateTopPadding()),
                 ) {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(16.dp),
-                        content = {
-
-                            item {
-                                Column(
-                                    modifier = Modifier
-                                        .padding(horizontal = 24.dp)
-                                        .padding(bottom = 8.dp)
-                                ) {
-                                    Text(
-                                        text = "Balance: %.2f zł".format(budget.balance),
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                }
-                            }
-                            items(budget.operations) {operation ->
-                                BudgetOperationItem(
-                                    operation = operation,
-                                    onClick = {
-                                        onCloseContextAction()
-                                        //TODO: operation details screen
-                                    },
-                                    onLongClick = {
-                                        contextActionsOperationId = operation.id
-                                    },
-                                    selected = contextActionsOperationId == operation.id
-                                )
+                    when(budget.operations.isEmpty() && !isLoading) {
+                        true -> {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = "Budget is empty!")
                             }
                         }
-                    )
+                        false -> {
+                            LazyColumn(
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                contentPadding = PaddingValues(16.dp),
+                                content = {
+                                    item {
+                                        Column(
+                                            modifier = Modifier
+                                                .padding(horizontal = 24.dp)
+                                                .padding(bottom = 8.dp)
+                                        ) {
+                                            Text(
+                                                text = "Balance: %.2f zł".format(budget.balance),
+                                                style = MaterialTheme.typography.titleMedium
+                                            )
+                                        }
+                                    }
+                                    items(budget.operations) {operation ->
+                                        BudgetOperationItem(
+                                            operation = operation,
+                                            onClick = {
+                                                onCloseContextAction()
+                                                //TODO: operation details screen
+                                            },
+                                            onLongClick = {
+                                                contextActionsOperationId = operation.id
+                                            },
+                                            selected = contextActionsOperationId == operation.id
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
             }
         )

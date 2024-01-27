@@ -63,4 +63,14 @@ class AuthRepository @Inject constructor(
         }
     }
 
+    suspend fun signOut(): AuthResult<Unit> {
+        return try {
+            preferences.edit().putString("jwt", "").apply()
+            AuthResult.Unauthorized("User successfully logged out!")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            AuthResult.Error()
+        }
+    }
+
 }

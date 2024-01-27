@@ -15,11 +15,13 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -146,6 +148,18 @@ fun MainScreen(navController: NavController) {
                         },
                         contextActionsBudgetId != null
                     )
+                    IconButton(
+                        onClick = {
+                            navController.navigate(Screen.SignInScreen.route) {
+                                popUpTo(navController.graph.id) {
+                                    inclusive = true
+                                }
+                            }
+                        },
+                        content = {
+                            Icon(Icons.Filled.Logout, "Log out")
+                        }
+                    )
                 }
             )
         },
@@ -200,32 +214,44 @@ fun MainScreen(navController: NavController) {
                     .padding(top = it.calculateTopPadding())
             ) {
                 budgets?.let {
-                    LazyVerticalStaggeredGrid(
-                        columns = StaggeredGridCells.Adaptive(128.dp),
-                        verticalItemSpacing = 4.dp,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        contentPadding = PaddingValues(16.dp),
-                        content = {
-                            items(budgets) { budget ->
-                                BudgetItem(
-                                    budget,
-                                    onClick = {
-                                        onCloseContextAction()
-                                        navController.navigate(
-                                            Screen.BudgetDetailsScreen.route +
-                                                    "?budgetId=${budget.id}"
-                                        )
-                                    },
-                                    onLongClick = {
-                                        contextActionsBudgetId = budget.id
-                                    },
-                                    selected = contextActionsBudgetId == budget.id
-                                )
+                    when(it.isEmpty() && !isLoading) {
+                        true -> {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = "No budgets!")
                             }
                         }
-                    )
+                        false -> {
+                            LazyVerticalStaggeredGrid(
+                                columns = StaggeredGridCells.Adaptive(128.dp),
+                                verticalItemSpacing = 4.dp,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                contentPadding = PaddingValues(16.dp),
+                                content = {
+                                    items(it) { budget ->
+                                        BudgetItem(
+                                            budget,
+                                            onClick = {
+                                                onCloseContextAction()
+                                                navController.navigate(
+                                                    Screen.BudgetDetailsScreen.route +
+                                                            "?budgetId=${budget.id}"
+                                                )
+                                            },
+                                            onLongClick = {
+                                                contextActionsBudgetId = budget.id
+                                            },
+                                            selected = contextActionsBudgetId == budget.id
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
-
             }
         }
     )

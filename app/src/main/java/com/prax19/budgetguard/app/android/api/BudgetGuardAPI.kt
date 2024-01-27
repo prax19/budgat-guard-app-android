@@ -14,7 +14,8 @@ import retrofit2.http.Path
 interface BudgetGuardApi {
 
     companion object {
-        const val BASE_URL = "http://192.168.0.205:8080/api/v1/"
+        //const val BASE_URL = "http://192.168.1.205:8080/api/v1/"
+        const val BASE_URL = "https://osprey-brief-silkworm.ngrok-free.app/api/v1/"
     }
 
     @POST("auth/register")

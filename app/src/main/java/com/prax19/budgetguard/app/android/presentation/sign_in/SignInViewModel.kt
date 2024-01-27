@@ -29,6 +29,12 @@ class SignInViewModel @Inject constructor(
     val passwordInputFocusRequester = FocusRequester()
     val loginButtonFocusRequester = FocusRequester()
 
+    init {
+        viewModelScope.launch {
+            authRepository.signOut()
+        }
+    }
+
     fun onEvent(event: SignInUiEvent) {
         when(event) {
             is SignInUiEvent.UsernameChanged -> {
