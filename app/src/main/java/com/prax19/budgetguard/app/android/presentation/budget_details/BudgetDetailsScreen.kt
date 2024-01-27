@@ -388,7 +388,10 @@ fun BudgetOperationItem(
 //                        style = MaterialTheme.typography.bodySmall
 //                    )
                     Text(
-                        text = "${operation.dateTime.toLocalDate()}",
+                        text = "%s • %s".format(
+                            operation.dateTime.toLocalTime(),
+                            operation.dateTime.toLocalDate()
+                        ),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
