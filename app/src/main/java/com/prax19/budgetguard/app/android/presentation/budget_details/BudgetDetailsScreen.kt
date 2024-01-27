@@ -3,6 +3,8 @@ package com.prax19.budgetguard.app.android.presentation.budget_details
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -146,6 +148,7 @@ fun BudgetDetailsScreen(navController: NavController) {
                             ) //TODO: handle user
                         )
                         openAddEditOperation.value = false
+                        viewModel.markViewAsNotReady()
                         onCloseContextAction()
                     },
                     onOperationEdition = { operation ->
@@ -160,6 +163,7 @@ fun BudgetDetailsScreen(navController: NavController) {
                             ) //TODO: handle user
                         )
                         openAddEditOperation.value = false
+                        viewModel.markViewAsNotReady()
                         onCloseContextAction()
                     },
                     onDismissRequest = {
@@ -170,7 +174,6 @@ fun BudgetDetailsScreen(navController: NavController) {
                 )
         }
     }
-
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -178,8 +181,14 @@ fun BudgetDetailsScreen(navController: NavController) {
         topBar = {
             TopAppBar(
                 title = {
-                    budget?.let {
-                        Text(text = budget.name)
+                    AnimatedVisibility(
+                        enter = fadeIn(),
+                        exit = fadeOut(),
+                        visible = isViewReady
+                    ) {
+                        budget?.let {
+                            Text(text = budget.name)
+                        }
                     }
                 },
                 actions = {
@@ -192,7 +201,11 @@ fun BudgetDetailsScreen(navController: NavController) {
                         onClickDelete = {
                             contextActionsOperationId?.let {
                                 //TODO: add operation deletion dialog
-                                viewModel.deleteOperation(viewModel.getOperationById(contextActionsOperationId)!!)
+                                viewModel.deleteOperation(
+                                    viewModel.getOperationById(
+                                        contextActionsOperationId
+                                    )!!
+                                )
                             }
                             contextActionsOperationId = null
                         },
@@ -224,12 +237,12 @@ fun BudgetDetailsScreen(navController: NavController) {
             )
         },
         content = {
-            if(isLoading)
+            if (isLoading)
                 Box(
                     modifier = Modifier
                         .fillMaxSize(),
                     contentAlignment = Alignment.Center
-                ){
+                ) {
                     CircularProgressIndicator()
                 }
             Column(
@@ -238,49 +251,56 @@ fun BudgetDetailsScreen(navController: NavController) {
                     .padding(bottom = it.calculateBottomPadding())
                     .padding(top = it.calculateTopPadding()),
             ) {
-                budget?.let {
-                    when(budget.operations.isEmpty() && isViewReady) {
-                        true -> {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(text = "Budget is empty!")
+                AnimatedVisibility(
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                    visible = isViewReady
+                ) {
+                    budget?.let {
+                        when (budget.operations.isEmpty()) {
+                            true -> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(text = "Budget is empty!")
+                                }
                             }
-                        }
-                        false -> {
-                            LazyColumn(
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                                contentPadding = PaddingValues(16.dp),
-                                content = {
-                                    item {
-                                        Column(
-                                            modifier = Modifier
-                                                .padding(horizontal = 24.dp)
-                                                .padding(bottom = 8.dp)
-                                        ) {
-                                            Text(
-                                                text = "Balance: %.2f zł".format(budget.balance),
-                                                style = MaterialTheme.typography.titleMedium
+
+                            false -> {
+                                LazyColumn(
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                    contentPadding = PaddingValues(16.dp),
+                                    content = {
+                                        item {
+                                            Column(
+                                                modifier = Modifier
+                                                    .padding(horizontal = 24.dp)
+                                                    .padding(bottom = 8.dp)
+                                            ) {
+                                                Text(
+                                                    text = "Balance: %.2f zł".format(budget.balance),
+                                                    style = MaterialTheme.typography.titleMedium
+                                                )
+                                            }
+                                        }
+                                        items(budget.operations) { operation ->
+                                            BudgetOperationItem(
+                                                operation = operation,
+                                                onClick = {
+                                                    onCloseContextAction()
+                                                    //TODO: operation details screen
+                                                },
+                                                onLongClick = {
+                                                    contextActionsOperationId = operation.id
+                                                },
+                                                selected = contextActionsOperationId == operation.id
                                             )
                                         }
                                     }
-                                    items(budget.operations) {operation ->
-                                        BudgetOperationItem(
-                                            operation = operation,
-                                            onClick = {
-                                                onCloseContextAction()
-                                                //TODO: operation details screen
-                                            },
-                                            onLongClick = {
-                                                contextActionsOperationId = operation.id
-                                            },
-                                            selected = contextActionsOperationId == operation.id
-                                        )
-                                    }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 }

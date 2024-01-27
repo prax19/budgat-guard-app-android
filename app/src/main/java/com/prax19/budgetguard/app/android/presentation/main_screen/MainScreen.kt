@@ -206,11 +206,13 @@ fun MainScreen(navController: NavController) {
                         onBudgetCreation = { budget ->
                             viewModel.createNewBudget(budget)
                             openAddEditBudget.value = false
+                            viewModel.markViewAsNotReady()
                             onCloseContextAction()
                         },
                         onBudgetEdition = { budget ->
                             viewModel.editBudget(budget)
                             openAddEditBudget.value = false
+                            viewModel.markViewAsNotReady()
                             onCloseContextAction()
                         },
                         onDismissRequest = {
@@ -228,41 +230,43 @@ fun MainScreen(navController: NavController) {
                     .padding(top = it.calculateTopPadding())
             ) {
                 budgets?.let {
-                    when(it.isEmpty() && isViewReady) {
-                        true -> {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(text = "No budgets!")
-                            }
-                        }
-                        false -> {
-                            LazyVerticalStaggeredGrid(
-                                columns = StaggeredGridCells.Adaptive(128.dp),
-                                verticalItemSpacing = 4.dp,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                contentPadding = PaddingValues(16.dp),
-                                content = {
-                                    items(it) { budget ->
-                                        BudgetItem(
-                                            budget,
-                                            onClick = {
-                                                onCloseContextAction()
-                                                navController.navigate(
-                                                    Screen.BudgetDetailsScreen.route +
-                                                            "?budgetId=${budget.id}"
-                                                )
-                                            },
-                                            onLongClick = {
-                                                contextActionsBudgetId = budget.id
-                                            },
-                                            selected = contextActionsBudgetId == budget.id
-                                        )
-                                    }
+                    AnimatedVisibility(visible = isViewReady) {
+                        when(it.isEmpty()) {
+                            true -> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(text = "No budgets!")
                                 }
-                            )
+                            }
+                            false -> {
+                                LazyVerticalStaggeredGrid(
+                                    columns = StaggeredGridCells.Adaptive(128.dp),
+                                    verticalItemSpacing = 4.dp,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    contentPadding = PaddingValues(16.dp),
+                                    content = {
+                                        items(it) { budget ->
+                                            BudgetItem(
+                                                budget,
+                                                onClick = {
+                                                    onCloseContextAction()
+                                                    navController.navigate(
+                                                        Screen.BudgetDetailsScreen.route +
+                                                                "?budgetId=${budget.id}"
+                                                    )
+                                                },
+                                                onLongClick = {
+                                                    contextActionsBudgetId = budget.id
+                                                },
+                                                selected = contextActionsBudgetId == budget.id
+                                            )
+                                        }
+                                    }
+                                )
+                            }
                         }
                     }
                 }
