@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -192,14 +193,6 @@ fun MainScreen(navController: NavController) {
             )
         },
         content = {
-            if(isLoading)
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ){
-                    CircularProgressIndicator()
-                }
             when {
                 openAddEditBudget.value ->
                     AddEditBudgetDialog(
@@ -222,11 +215,18 @@ fun MainScreen(navController: NavController) {
                         budget = viewModel.getBudgetById(contextActionsBudgetId)
                     )
             }
-
+            if(isLoading)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ){
+                    CircularProgressIndicator()
+                }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = it.calculateBottomPadding())
+                    .navigationBarsPadding()
                     .padding(top = it.calculateTopPadding())
             ) {
                 budgets?.let {
@@ -301,7 +301,8 @@ fun BudgetItem( //TODO: add more details to items
                 Text(
                     style = MaterialTheme.typography.bodyMedium,
                     text = "%.2f %s".format(budget.balance, budget.currency.symbol),
-                    textAlign = TextAlign.Start
+                    textAlign = TextAlign.Start,
+                    maxLines = 1
                 )
             }
         }

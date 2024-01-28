@@ -203,7 +203,10 @@ fun BudgetDetailsScreen(navController: NavController) {
                         visible = isViewReady
                     ) {
                         budget?.let {
-                            Text(text = budget.name)
+                            Text(
+                                text = budget.name,
+                                maxLines = 1
+                            )
                         }
                     }
                 },
@@ -268,6 +271,8 @@ fun BudgetDetailsScreen(navController: NavController) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .navigationBarsPadding()
+                    .padding(top = it.calculateTopPadding())
             ) {
                 AnimatedVisibility(
                     enter = fadeIn(),
@@ -363,7 +368,8 @@ fun BudgetOperationItem(
                     ) {
                         Text(
                             text = operation.name,
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
+                            maxLines = 1
                         )
 
 //                    Text(
@@ -383,7 +389,8 @@ fun BudgetOperationItem(
                             operation.budget.currency.symbol
                         ),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = color
+                        color = color,
+                        maxLines = 1
                     )
                 }
                 Divider(
