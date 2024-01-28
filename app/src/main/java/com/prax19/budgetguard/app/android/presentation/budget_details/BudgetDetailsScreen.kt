@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -24,6 +25,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -61,6 +63,7 @@ import java.time.LocalDateTime
 fun BudgetDetailsScreen(navController: NavController) {
     val viewModel: BudgetDetailsScreenViewModel = hiltViewModel()
     val budget = viewModel.state.value.budget
+    val operations = viewModel.state.value.opsToDisplay
     val isLoading = viewModel.state.value.isLoading
     val isViewReady = viewModel.state.value.isViewReady
 
@@ -268,19 +271,33 @@ fun BudgetDetailsScreen(navController: NavController) {
                 ) {
                     CircularProgressIndicator()
                 }
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .navigationBarsPadding()
-                    .padding(top = it.calculateTopPadding())
+            AnimatedVisibility(
+                enter = fadeIn(),
+                exit = fadeOut(),
+                visible = isViewReady
             ) {
-                AnimatedVisibility(
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                    visible = isViewReady
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .navigationBarsPadding()
+                        .padding(top = it.calculateTopPadding())
                 ) {
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(viewModel.operationFilters) {
+                            FilterChip(
+                                selected = it == viewModel.state.value.filter,
+                                onClick = {
+                                    viewModel.setFilter(it)
+                                    viewModel.loadBudget()
+                                },
+                                label = { Text(it.text) })
+                        }
+                    }
                     budget?.let {
-                        when (budget.operations.isEmpty()) {
+                        when (operations.isEmpty()) {
                             true -> {
                                 Box(
                                     modifier = Modifier
@@ -293,6 +310,8 @@ fun BudgetDetailsScreen(navController: NavController) {
 
                             false -> {
                                 LazyColumn(
+                                    modifier = Modifier
+                                        .navigationBarsPadding(),
                                     verticalArrangement = Arrangement.spacedBy(8.dp),
                                     contentPadding = PaddingValues(16.dp),
                                     content = {
@@ -311,7 +330,7 @@ fun BudgetDetailsScreen(navController: NavController) {
                                                 )
                                             }
                                         }
-                                        items(budget.operations) { operation ->
+                                        items(operations) { operation ->
                                             BudgetOperationItem(
                                                 operation = operation,
                                                 onClick = {

@@ -29,6 +29,8 @@ class BudgetDetailsScreenViewModel @Inject constructor(
     private val resultChanel = Channel<AuthResult<*>>()
     val results = resultChanel.receiveAsFlow()
 
+    val operationFilters = listOf(OperationsFilter.All, OperationsFilter.Today)
+
     private val budgetId: Long? = null
 
     fun loadBudget() {
@@ -63,7 +65,8 @@ class BudgetDetailsScreenViewModel @Inject constructor(
                 }
 
                 _state.value = state.value.copy(
-                    budget = budget
+                    budget = budget,
+                    opsToDisplay = state.value.filter.doFilter(budget.operations)
                 )
             }
             result.authResult?.let {
@@ -140,12 +143,18 @@ class BudgetDetailsScreenViewModel @Inject constructor(
 
     }
 
+    fun setFilter(filter: OperationsFilter) {
+        _state.value = state.value.copy(filter = filter)
+    }
+
     fun markViewAsNotReady() {
         _state.value = state.value.copy(isViewReady = false)
     }
 
     data class BudgetState(
         val budget: Budget? = null,
+        val opsToDisplay: List<Operation> = emptyList(), //Operations displayed in a view
+        val filter: OperationsFilter = OperationsFilter.All,
         val isLoading: Boolean = false,
         val isViewReady: Boolean = false
     )
