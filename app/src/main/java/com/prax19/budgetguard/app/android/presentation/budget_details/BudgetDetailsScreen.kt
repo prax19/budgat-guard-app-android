@@ -318,10 +318,16 @@ fun BudgetDetailsScreen(navController: NavController) {
                                                 )
                                                 AnimatedVisibility(visible = viewModel.state.value.filter != OperationsFilter.All) {
                                                     Text(
-                                                        text = "%s: %.2f %s".format(
+                                                        text = "%s: %s".format(
                                                             viewModel.state.value.filter.text.lowercase(),
-                                                            viewModel.state.value.filteredBalance,
-                                                            budget.currency.symbol
+                                                            when {
+                                                                isLoading -> "-"
+                                                                else -> "%.2f %s"
+                                                                    .format(
+                                                                        viewModel.state.value.filteredBalance,
+                                                                        budget.currency.symbol
+                                                                    )
+                                                             }
                                                         ),
                                                         style = MaterialTheme.typography.titleSmall,
                                                         color = when {

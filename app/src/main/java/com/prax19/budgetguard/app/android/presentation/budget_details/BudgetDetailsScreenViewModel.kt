@@ -29,7 +29,12 @@ class BudgetDetailsScreenViewModel @Inject constructor(
     private val resultChanel = Channel<AuthResult<*>>()
     val results = resultChanel.receiveAsFlow()
 
-    val operationFilters = listOf(OperationsFilter.All, OperationsFilter.Today, OperationsFilter.Week)
+    val operationFilters = listOf(
+        OperationsFilter.All,
+        OperationsFilter.Today,
+        OperationsFilter.Week,
+        OperationsFilter.Month
+    )
 
     private val budgetId: Long? = null
 
