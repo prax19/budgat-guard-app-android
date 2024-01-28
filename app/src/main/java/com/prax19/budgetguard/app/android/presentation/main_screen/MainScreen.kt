@@ -215,14 +215,6 @@ fun MainScreen(navController: NavController) {
                         budget = viewModel.getBudgetById(contextActionsBudgetId)
                     )
             }
-            if(isLoading)
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ){
-                    CircularProgressIndicator()
-                }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -271,6 +263,14 @@ fun MainScreen(navController: NavController) {
                     }
                 }
             }
+            if(isLoading)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ){
+                    CircularProgressIndicator()
+                }
         }
     )
 

@@ -263,14 +263,6 @@ fun BudgetDetailsScreen(navController: NavController) {
             }
         },
         content = {
-            if (isLoading)
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
             AnimatedVisibility(
                 enter = fadeIn(),
                 exit = fadeOut(),
@@ -279,8 +271,6 @@ fun BudgetDetailsScreen(navController: NavController) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .navigationBarsPadding()
-                        .padding(top = it.calculateTopPadding())
                 ) {
                     LazyRow(
                         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -310,8 +300,6 @@ fun BudgetDetailsScreen(navController: NavController) {
 
                             false -> {
                                 LazyColumn(
-                                    modifier = Modifier
-                                        .navigationBarsPadding(),
                                     verticalArrangement = Arrangement.spacedBy(8.dp),
                                     contentPadding = PaddingValues(16.dp),
                                     content = {
@@ -350,6 +338,14 @@ fun BudgetDetailsScreen(navController: NavController) {
                     }
                 }
             }
+            if (isLoading)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
         }
     )
 }
