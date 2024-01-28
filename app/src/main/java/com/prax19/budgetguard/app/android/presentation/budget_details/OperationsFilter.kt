@@ -18,4 +18,15 @@ sealed class OperationsFilter(val text: String) {
             }
         }
     }
+
+    data object Week: OperationsFilter("This week") {
+        override fun doFilter(operations: List<Operation>): List<Operation> {
+            val today = LocalDate.now()
+            return operations.filter {
+                it.dateTime.toLocalDate().isAfter(today.minusWeeks(1))
+                    && it.dateTime.toLocalDate().isBefore(today.plusDays(1))
+            }
+        }
+    }
+
 }
