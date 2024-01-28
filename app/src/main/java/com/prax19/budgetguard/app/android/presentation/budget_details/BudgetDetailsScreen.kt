@@ -316,6 +316,24 @@ fun BudgetDetailsScreen(navController: NavController) {
                                                     ),
                                                     style = MaterialTheme.typography.titleMedium
                                                 )
+                                                AnimatedVisibility(visible = viewModel.state.value.filter != OperationsFilter.All) {
+                                                    Text(
+                                                        text = "%s: %.2f %s".format(
+                                                            viewModel.state.value.filter.text.lowercase(),
+                                                            viewModel.state.value.filteredBalance,
+                                                            budget.currency.symbol
+                                                        ),
+                                                        style = MaterialTheme.typography.titleSmall,
+                                                        color = when {
+                                                            viewModel.state.value.filteredBalance < 0 -> {
+                                                                MaterialTheme.colorScheme.error
+                                                            }
+                                                            else -> {
+                                                                MaterialTheme.colorScheme.primary
+                                                            }
+                                                        }
+                                                    )
+                                                }
                                             }
                                         }
                                         items(operations) { operation ->

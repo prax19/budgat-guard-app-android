@@ -64,10 +64,14 @@ class BudgetDetailsScreenViewModel @Inject constructor(
                     )
                 }
 
+                val filteredOperations = state.value.filter.doFilter(budget.operations)
                 _state.value = state.value.copy(
                     budget = budget,
-                    opsToDisplay = state.value.filter.doFilter(budget.operations)
+                    opsToDisplay = filteredOperations,
+                    filteredBalance = filteredOperations.map { it.value }.sum()
                 )
+
+
             }
             result.authResult?.let {
                 resultChanel.send(it)
@@ -154,6 +158,7 @@ class BudgetDetailsScreenViewModel @Inject constructor(
     data class BudgetState(
         val budget: Budget? = null,
         val opsToDisplay: List<Operation> = emptyList(), //Operations displayed in a view
+        val filteredBalance: Float = 0f,
         val filter: OperationsFilter = OperationsFilter.All,
         val isLoading: Boolean = false,
         val isViewReady: Boolean = false
