@@ -271,8 +271,6 @@ fun BudgetDetailsScreen(navController: NavController) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .navigationBarsPadding()
-                    .padding(top = it.calculateTopPadding())
             ) {
                 AnimatedVisibility(
                     enter = fadeIn(),
