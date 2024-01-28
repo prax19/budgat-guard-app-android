@@ -5,8 +5,6 @@ import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,26 +13,29 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -51,6 +52,7 @@ import com.prax19.budgetguard.app.android.data.model.Operation
 import com.prax19.budgetguard.app.android.presentation.utils.ContextActions
 import com.prax19.budgetguard.app.android.presentation.utils.Selectable
 import com.prax19.budgetguard.app.android.util.Screen
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,6 +63,10 @@ fun BudgetDetailsScreen(navController: NavController) {
     val budget = viewModel.state.value.budget
     val isLoading = viewModel.state.value.isLoading
     val isViewReady = viewModel.state.value.isViewReady
+
+    val viewScope = rememberCoroutineScope()
+
+    val scaffoldState = rememberBottomSheetScaffoldState()
 
     val openAddEditOperation = remember { mutableStateOf(false) }
 
@@ -149,6 +155,9 @@ fun BudgetDetailsScreen(navController: NavController) {
                         )
                         openAddEditOperation.value = false
                         viewModel.markViewAsNotReady()
+                        viewScope.launch {
+                            scaffoldState.bottomSheetState.partialExpand()
+                        }
                         onCloseContextAction()
                     },
                     onOperationEdition = { operation ->
@@ -164,6 +173,9 @@ fun BudgetDetailsScreen(navController: NavController) {
                         )
                         openAddEditOperation.value = false
                         viewModel.markViewAsNotReady()
+                        viewScope.launch {
+                            scaffoldState.bottomSheetState.partialExpand()
+                        }
                         onCloseContextAction()
                     },
                     onDismissRequest = {
@@ -174,10 +186,14 @@ fun BudgetDetailsScreen(navController: NavController) {
                 )
         }
     }
-    Scaffold(
+    BottomSheetScaffold(
         modifier = Modifier
-            .fillMaxSize()
             .pointerInput(onCloseContextAction) { detectTapGestures { onCloseContextAction() } },
+        scaffoldState = scaffoldState,
+        sheetPeekHeight = 100.dp,
+        sheetTonalElevation = 2.dp,
+        sheetShadowElevation = 2.dp,
+        sheetSwipeEnabled = true,
         topBar = {
             TopAppBar(
                 title = {
@@ -214,14 +230,17 @@ fun BudgetDetailsScreen(navController: NavController) {
                 }
             )
         },
-        floatingActionButton =
-        {
-            AnimatedVisibility(
-                enter = scaleIn(),
-                exit = scaleOut(),
-                visible = isViewReady,
-                content = {
-                    FloatingActionButton(
+        sheetContent = {
+            Column(
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .padding(start = 16.dp, end = 16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    OutlinedButton(
                         onClick = {
                             openAddEditOperation.value = true
                             onCloseContextAction()
@@ -231,10 +250,11 @@ fun BudgetDetailsScreen(navController: NavController) {
                                 Icons.Filled.Add,
                                 "Add new operation"
                             )
+                            Text("Add operation")
                         }
                     )
                 }
-            )
+            }
         },
         content = {
             if (isLoading)
@@ -248,8 +268,6 @@ fun BudgetDetailsScreen(navController: NavController) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = it.calculateBottomPadding())
-                    .padding(top = it.calculateTopPadding()),
             ) {
                 AnimatedVisibility(
                     enter = fadeIn(),
@@ -322,7 +340,7 @@ fun BudgetOperationItem(
 
     ElevatedCard(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
     ) {
         Selectable(
             selected = selected,
