@@ -260,14 +260,6 @@ fun BudgetDetailsScreen(navController: NavController) {
             }
         },
         content = {
-            if (isLoading)
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -329,6 +321,14 @@ fun BudgetDetailsScreen(navController: NavController) {
                     }
                 }
             }
+            if (isLoading)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
         }
     )
 }
