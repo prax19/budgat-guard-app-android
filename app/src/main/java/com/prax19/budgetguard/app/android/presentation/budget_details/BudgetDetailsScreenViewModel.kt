@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.data.model.Budget
 import com.prax19.budgetguard.app.android.data.model.Operation
+import com.prax19.budgetguard.app.android.data.model.Target
 import com.prax19.budgetguard.app.android.repository.BudgetRepository
 import com.prax19.budgetguard.app.android.repository.OperationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -152,6 +153,10 @@ class BudgetDetailsScreenViewModel @Inject constructor(
 
     }
 
+    fun setTarget(target: Target) {
+        _state.value = state.value.copy(target = target)
+    }
+
     fun setFilter(filter: OperationsFilter) {
         _state.value = state.value.copy(filter = filter)
     }
@@ -162,6 +167,7 @@ class BudgetDetailsScreenViewModel @Inject constructor(
 
     data class BudgetState(
         val budget: Budget? = null,
+        val target: Target? = null,
         val opsToDisplay: List<Operation> = emptyList(), //Operations displayed in a view
         val filteredBalance: Float = 0f,
         val filter: OperationsFilter = OperationsFilter.All,
