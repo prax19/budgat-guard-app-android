@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.prax19.budgetguard.app.android.data.auth.AuthResult
 import com.prax19.budgetguard.app.android.data.model.Budget
 import com.prax19.budgetguard.app.android.data.model.Operation
+import com.prax19.budgetguard.app.android.data.model.Target
 import com.prax19.budgetguard.app.android.repository.BudgetRepository
 import com.prax19.budgetguard.app.android.repository.OperationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,6 +29,13 @@ class BudgetDetailsScreenViewModel @Inject constructor(
 
     private val resultChanel = Channel<AuthResult<*>>()
     val results = resultChanel.receiveAsFlow()
+
+    val operationFilters = listOf(
+        OperationsFilter.All,
+        OperationsFilter.Today,
+        OperationsFilter.Week,
+        OperationsFilter.Month
+    )
 
     private val budgetId: Long? = null
 
@@ -62,9 +70,14 @@ class BudgetDetailsScreenViewModel @Inject constructor(
                     )
                 }
 
+                val filteredOperations = state.value.filter.doFilter(budget.operations)
                 _state.value = state.value.copy(
-                    budget = budget
+                    budget = budget,
+                    opsToDisplay = filteredOperations,
+                    filteredBalance = filteredOperations.map { it.value }.sum()
                 )
+
+
             }
             result.authResult?.let {
                 resultChanel.send(it)
@@ -140,12 +153,24 @@ class BudgetDetailsScreenViewModel @Inject constructor(
 
     }
 
+    fun setTarget(target: Target) {
+        _state.value = state.value.copy(target = target)
+    }
+
+    fun setFilter(filter: OperationsFilter) {
+        _state.value = state.value.copy(filter = filter)
+    }
+
     fun markViewAsNotReady() {
         _state.value = state.value.copy(isViewReady = false)
     }
 
     data class BudgetState(
         val budget: Budget? = null,
+        val target: Target? = null,
+        val opsToDisplay: List<Operation> = emptyList(), //Operations displayed in a view
+        val filteredBalance: Float = 0f,
+        val filter: OperationsFilter = OperationsFilter.All,
         val isLoading: Boolean = false,
         val isViewReady: Boolean = false
     )

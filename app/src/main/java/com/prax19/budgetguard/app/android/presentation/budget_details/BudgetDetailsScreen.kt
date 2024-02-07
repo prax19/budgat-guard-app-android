@@ -11,19 +11,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -53,7 +58,9 @@ import com.prax19.budgetguard.app.android.presentation.utils.ContextActions
 import com.prax19.budgetguard.app.android.presentation.utils.Selectable
 import com.prax19.budgetguard.app.android.util.Screen
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalDateTime
+import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -61,6 +68,8 @@ import java.time.LocalDateTime
 fun BudgetDetailsScreen(navController: NavController) {
     val viewModel: BudgetDetailsScreenViewModel = hiltViewModel()
     val budget = viewModel.state.value.budget
+    val target = viewModel.state.value.target
+    val operations = viewModel.state.value.opsToDisplay
     val isLoading = viewModel.state.value.isLoading
     val isViewReady = viewModel.state.value.isViewReady
 
@@ -69,6 +78,7 @@ fun BudgetDetailsScreen(navController: NavController) {
     val scaffoldState = rememberBottomSheetScaffoldState()
 
     val openAddEditOperation = remember { mutableStateOf(false) }
+    val openSetTarget = remember { mutableStateOf(false) }
 
     //TODO: selection of multiple items
     var contextActionsOperationId by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -184,6 +194,19 @@ fun BudgetDetailsScreen(navController: NavController) {
                     },
                     operation = viewModel.getOperationById(contextActionsOperationId)
                 )
+            openSetTarget.value -> {
+                SetTargetDialog(
+                    current = budget.balance ?: 0f,
+                    oldTarget = target,
+                    onDismiss = {
+                        openSetTarget.value = false
+                    },
+                    onAccept = {
+                        openSetTarget.value = false
+                        viewModel.setTarget(it)
+                    }
+                )
+            }
         }
     }
     BottomSheetScaffold(
@@ -234,31 +257,30 @@ fun BudgetDetailsScreen(navController: NavController) {
             )
         },
         sheetContent = {
-            Column(
-                modifier = Modifier
-                    .navigationBarsPadding()
-                    .padding(start = 16.dp, end = 16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    OutlinedButton(
-                        onClick = {
-                            openAddEditOperation.value = true
-                            onCloseContextAction()
-                        },
-                        content = {
-                            Icon(
-                                Icons.Filled.Add,
-                                "Add new operation"
-                            )
-                            Text("Add operation")
+            BudgetDetailsBottomSheetContent(
+                onClickAddOperation = {
+                    openAddEditOperation.value = true
+                    onCloseContextAction()
+                },
+                onClickSetTarget = {
+                    openSetTarget.value = true
+                },
+                content = {
+                    target?.let {
+                        Divider(Modifier.padding(vertical = 8.dp))
+                        val advice = target.getAdvice(budget!!.balance!!, LocalDate.now()) ?: 0f
+                        when {
+                            advice < 0f -> {
+                                Text(text = "You can spend %.2f %s a day.".format(advice.absoluteValue, budget.currency.symbol))
+                            }
+                            else -> {
+                                Text(text = "You have to save %.2f %s a day.".format(advice, budget.currency.symbol))
+                            }
                         }
-                    )
+                    }
                 }
-            }
-        },
+            )
+       },
         content = {
             Column(
                 modifier = Modifier
@@ -269,8 +291,22 @@ fun BudgetDetailsScreen(navController: NavController) {
                     exit = fadeOut(),
                     visible = isViewReady
                 ) {
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(viewModel.operationFilters) {
+                            FilterChip(
+                                selected = it == viewModel.state.value.filter,
+                                onClick = {
+                                    viewModel.setFilter(it)
+                                    viewModel.loadBudget()
+                                },
+                                label = { Text(it.text) })
+                        }
+                    }
                     budget?.let {
-                        when (budget.operations.isEmpty()) {
+                        when (operations.isEmpty()) {
                             true -> {
                                 Box(
                                     modifier = Modifier
@@ -299,9 +335,33 @@ fun BudgetDetailsScreen(navController: NavController) {
                                                     ),
                                                     style = MaterialTheme.typography.titleMedium
                                                 )
+                                                AnimatedVisibility(visible = viewModel.state.value.filter != OperationsFilter.All) {
+                                                    Text(
+                                                        text = "%s: %s".format(
+                                                            viewModel.state.value.filter.text.lowercase(),
+                                                            when {
+                                                                isLoading -> "-"
+                                                                else -> "%.2f %s"
+                                                                    .format(
+                                                                        viewModel.state.value.filteredBalance,
+                                                                        budget.currency.symbol
+                                                                    )
+                                                             }
+                                                        ),
+                                                        style = MaterialTheme.typography.titleSmall,
+                                                        color = when {
+                                                            viewModel.state.value.filteredBalance < 0 -> {
+                                                                MaterialTheme.colorScheme.error
+                                                            }
+                                                            else -> {
+                                                                MaterialTheme.colorScheme.primary
+                                                            }
+                                                        }
+                                                    )
+                                                }
                                             }
                                         }
-                                        items(budget.operations) { operation ->
+                                        items(operations) { operation ->
                                             BudgetOperationItem(
                                                 operation = operation,
                                                 onClick = {
@@ -420,5 +480,47 @@ fun BudgetOperationItem(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun BudgetDetailsBottomSheetContent(
+    onClickAddOperation: () -> Unit,
+    onClickSetTarget: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .navigationBarsPadding()
+            .padding(start = 16.dp, end = 16.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            OutlinedButton(
+                onClick = onClickSetTarget,
+                content = {
+                    Icon(
+                        Icons.Outlined.Star,
+                        "Set target"
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Set target")
+                }
+            )
+            OutlinedButton(
+                onClick = onClickAddOperation,
+                content = {
+                    Icon(
+                        Icons.Filled.Add,
+                        "Add new operation"
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Add operation")
+                }
+            )
+        }
+        content()
     }
 }
