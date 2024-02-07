@@ -95,9 +95,11 @@ fun BudgetDetailsScreen(navController: NavController) {
             Lifecycle.State.CREATED -> {
                 viewModel.markViewAsNotReady()
             }
+
             Lifecycle.State.RESUMED -> {
                 viewModel.loadBudget()
             }
+
             else -> {}
         }
     }
@@ -105,7 +107,7 @@ fun BudgetDetailsScreen(navController: NavController) {
     val context = LocalContext.current
     LaunchedEffect(viewModel, context) {
         viewModel.results.collect {
-            when(it) {
+            when (it) {
                 is AuthResult.Unauthorized -> {
                     Toast.makeText(
                         context,
@@ -118,6 +120,7 @@ fun BudgetDetailsScreen(navController: NavController) {
                         }
                     }
                 }
+
                 is AuthResult.Forbidden -> {
                     Toast.makeText(
                         context,
@@ -130,6 +133,7 @@ fun BudgetDetailsScreen(navController: NavController) {
                         }
                     }
                 }
+
                 is AuthResult.Error -> {
                     Toast.makeText(
                         context,
@@ -142,6 +146,7 @@ fun BudgetDetailsScreen(navController: NavController) {
                         }
                     }
                 }
+
                 is AuthResult.UserNotFound -> {}
                 is AuthResult.Authorized -> {}
             }
@@ -194,6 +199,7 @@ fun BudgetDetailsScreen(navController: NavController) {
                     },
                     operation = viewModel.getOperationById(contextActionsOperationId)
                 )
+
             openSetTarget.value -> {
                 SetTargetDialog(
                     current = budget.balance ?: 0f,
@@ -271,25 +277,36 @@ fun BudgetDetailsScreen(navController: NavController) {
                         val advice = target.getAdvice(budget!!.balance!!, LocalDate.now()) ?: 0f
                         when {
                             advice < 0f -> {
-                                Text(text = "You can spend %.2f %s a day.".format(advice.absoluteValue, budget.currency.symbol))
+                                Text(
+                                    text = "You can spend %.2f %s a day.".format(
+                                        advice.absoluteValue,
+                                        budget.currency.symbol
+                                    )
+                                )
                             }
+
                             else -> {
-                                Text(text = "You have to save %.2f %s a day.".format(advice, budget.currency.symbol))
+                                Text(
+                                    text = "You have to save %.2f %s a day.".format(
+                                        advice,
+                                        budget.currency.symbol
+                                    )
+                                )
                             }
                         }
                     }
                 }
             )
-       },
+        },
         content = {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
+            AnimatedVisibility(
+                enter = fadeIn(),
+                exit = fadeOut(),
+                visible = isViewReady
             ) {
-                AnimatedVisibility(
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                    visible = isViewReady
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
                 ) {
                     LazyRow(
                         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -346,13 +363,14 @@ fun BudgetDetailsScreen(navController: NavController) {
                                                                         viewModel.state.value.filteredBalance,
                                                                         budget.currency.symbol
                                                                     )
-                                                             }
+                                                            }
                                                         ),
                                                         style = MaterialTheme.typography.titleSmall,
                                                         color = when {
                                                             viewModel.state.value.filteredBalance < 0 -> {
                                                                 MaterialTheme.colorScheme.error
                                                             }
+
                                                             else -> {
                                                                 MaterialTheme.colorScheme.primary
                                                             }
