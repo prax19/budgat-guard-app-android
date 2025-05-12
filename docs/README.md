@@ -1,39 +1,51 @@
-# Projekt Budget Guard - klient
+# Budget Guard Project – Client
 
-**Budget Guard** to projekt przygotowany w ramach pracy inżynierskiej, skupiający się na przedstawieniu przykładowej implementacji systemu *klient-serwer* z zastosowaniem architektury *RESTful API*. Część serwerowa to klasyczne API przygotowane z wykorzystaniem języka **Java** i frameworku **Spring**, część kliencka z kolei to aplikacja mobilna dla systemu **Android** przygotowana z użyciem języka **Kotlin** oraz narzędzia **Jetpack Compose**. System posiada mechanizm kont, a żądania i odpowiedzi z serwera zabezpieczone są z wykorzystaniem *tokenów JWT*. Projekt na poziomie konsumenckim dotyczy problematyki świadomego planowania bieżących wydatków.
+[![pl](https://img.shields.io/badge/lang-pl-red.svg)](README_pl.md)
 
-Projekt został rozdzielony na dwa osobne repozytoria. Niniejsze repozytorium zawiera **projekt aplikacji**, z kolei [drugie](https://github.com/prax19/budget-guard-api) — projekt części serwerowej systemu.
+**Budget Guard** is an engineering-thesis project that showcases an example implementation of a client-server system built with a **RESTful API** architecture.
+The server side is a conventional API written in **Java** with **Spring**, while the client side is an Android mobile app developed in **Kotlin** with **Jetpack Compose**.
+The system supports user accounts, and every request and response is secured with **JWT** tokens. For end users the project tackles the challenge of mindful planning of day-to-day spending.
 
-## Opis techniczny aplikacji
+The codebase is split into two repositories. This repository contains the **application project**; the [other repository](https://github.com/prax19/budget-guard-api) holds the server component.
 
-Aplikacja z założenia miała implementować architekturę **MVVM** (*ang. Model-View-ViewModel*), która zapewnia dobrą separację logiki biznesowej od widoku. Założenie udało się zrealizować m.in. poprzez zastosowanie osobnych komponentów *ViewModel* dla każdego z widoków. Użycie konkretnej architektury było szczególnie istotne ze względu na stosunkowo dużą liczbę widoków oraz potencjalne skalowanie systemu w przyszłości. Poniżej przedstawiono schemat widoków oraz tranzycji między nimi.
+## Technical overview
 
-![alt text](image-2.png)
+The application follows the **MVVM** (_Model - View - ViewModel_) architecture, which cleanly separates business logic from the UI. Each view has its own ViewModel. This structure was crucial because the app contains many views and may be extended in the future. The diagram below presents the views and the transitions between them.
 
-Kolejnym założeniem projektu aplikacji klienckiej było zastosowanie **Material Design 3**, dzięki czemu aplikacja jest spójna wizualnie z systemem Android oraz zaprojektowana zgodnie z powszechnie znanymi standardami. Dodatkowo użycie **Jetpack Compose** daje możliwość łatwej implementacji komponentów *Material* w aplikacji, dzięki czemu nie było potrzeby przygotowywania własnych, co zdecydowanie usprawniło pracę.
+![View graph](images/image-1.png)
 
-Do komunikacji zostały zastosowane biblioteki **GSON**, **Retrofit2** oraz **OkHttp3**. Biblioteki te wykorzystywane są w celu formułowania oraz wysyłania zapytań *HTTP* do serwera w warstwie *repozytoriów*. Zastosowanie repozytoriów to kolejny element architektury *MVVM*, który pozwala na odseparowanie modułu odpowiedzialnego za komunikację od logiki biznesowej. *ViewModel* bowiem, na przykład w celu wysłania kolejnego elementu do bazy danych, zamiast ręcznego budowania zapytania *HTTP* wywołuje odpowiednie metody *repozytorium*.
+Another design goal was to apply **Material Design 3** so the app looks consistent with Android and follows well-known design guidelines.
+Using **Jetpack Compose** makes it easy to integrate Material components, eliminating the need for custom ones and speeding up development.
 
-W projekcie wykorzystano także **Dagger Hilt** jako narzędzie do zarządzania mechanizmem wstrzykiwania zależności. Narzędzie to okazało się bardzo użyteczne dzięki integracji z cyklami życia aplikacji, dzięki czemu można było utworzyć na przykład singletony poszczególnych repozytoriów, które były inicjalizowane przy uruchomieniu aplikacji oraz wstrzykiwane do *ViewModeli*.
+For networking the project relies on **GSON**, **Retrofit2**, and **OkHttp3**. These libraries live in the **repository layer**, where they build and send HTTP requests to the server.
+Repositories further decouple the communication module from business logic: when a ViewModel needs to add a new item to the database, it simply calls a repository method instead of constructing a request by hand.
 
-Bardzo użyteczny w kontekście wykorzystania Jetpack Compose okazał się komponent **State**. Komponent ten, we współpracy z widokiem komponowalnym (*ang. composable*), jest w stanie automatycznie wyzwolić odświeżenie UI. Oznacza to, że obiekt jest obserwowalny (*ang. observable*). Jest to rozwiązanie wyjątkowo czyste oraz wydajne, a także pozwala na uniknięcie problemów z widokiem podczas migracji danych z serwera – stan widoku zamiast tworzyć nową instancję, uaktualnia swoje poszczególne pola. 
+Dependency injection is handled by **Dagger Hilt**. Thanks to its integration with Android life-cycle components it was straightforward to create singleton instances of repositories that are initialized at application start-up and injected into ViewModels.
 
-Zabezpieczenie API wymagało zaimplementowania w aplikacji mechanizmu obsługującego tokeny **JWT**. Mechanizm ten w tym przypadku jest standardowy i polega na pobraniu oraz zapisaniu tokenu w zabezpieczonej pamięci cache aplikacji przy logowaniu, a następnie wykorzystaniu tego tokenu przez repozytorium do wysyłania żądań. Token ma swój okres ważności; po jego utraceniu aplikacja odsyła użytkownika do ekranu logowania, by ten ponownie się zalogował.
+Within Jetpack Compose the **State** component proved extremely useful. Together with a composable view it automatically triggers UI refreshes because the object is observable.
+This solution is clean and efficient, and it prevents visual glitches while synchronizing data from the server—the view just updates its properties instead of being recreated.
 
-## Opis funkcjonalny
+Securing the API required standard handling of **JWT** tokens in the app.
+The token is obtained and stored in encrypted cache during login and then attached by repositories to every request. Each token has an expiration time; when it expires the app redirects the user to the login view for re-authentication.
 
-Pierwszym po zalogowaniu użytkownika widokiem aplikacji jest panel gromadzący wszystkie budżety. Mogą to być budżety związane z jakimś wydarzeniem, oszczędnościami czy wydatkami bieżącymi. Użytkownik ma możliwość dodawania kolejnych za pomocą dialogu z pytaniem o nazwę. Budżetami można zarządzać z wykorzystaniem akcji kontekstowych, przytrzymując palcem na poszczególne budżety.
+## Functional overview
 
-![alt text](2.png)
+After signing in, the user lands on a dashboard that gathers all budgets. Budgets can be linked to an event, savings, or daily expenses.
+New budgets are added through a dialog that asks for a name. Budgets are managed with contextual actions by long-pressing a budget item.
 
-Najistotniejszym widokiem jest podsumowanie budżetu. Podsumowanie to zawiera listę operacji płatniczych, jakie zostały zdefiniowane przez użytkownika. Listę można filtrować, a na jej szczycie znajduje się informacja o aktualnym stanie budżetu oraz zmianie w danym okresie (jeżeli użytkownik filtruje listę względem pewnego okresu). Listą operacji płatniczych da się zarządzać w taki sam sposób jak listą budżetów – za pomocą akcji kontekstowych.
+![Main view](images/2.png)
 
-![alt text](3.png)
+The central view is the budget summary. It contains a list of payment operations defined by the user.
+The list can be filtered, and at its top the current balance and the change in the selected period are displayed (if a period filter is active). Payment operations are managed in the same way as budgets—through contextual actions.
 
-W dolnej części ekranu widoczna jest *dolna karta* (*BottomSheet*), której rozwinięcie pozwala użytkownikowi na podjęcie dwóch akcji. Jedna z nich pozwala na dodanie operacji za pomocą dialogu pełnoekranowego. W dialogu uzupełnia się informacje takie jak typ operacji, nazwę, datę, godzinę oraz wartość. Drugą z akcji jest funkcja ustalania celu finansowego, jaki użytkownik chce osiągnąć do określonej daty. Cel definiowany jest również za pomocą dialogu.
+![Operations view](images/3.png)
 
-![alt text](4.png)
+At the bottom of the view a **BottomSheet** component is available. Expanding it lets the user perform two actions:
+1. **Add an operation** – opens a full-size modal dialog where the user sets the operation type, name, date, time, and amount.
+2. **Set a financial goal** – lets the user define a goal to reach by a given date, also via a dialog.
 
-Po ustaleniu celu, w dolnej karcie wyświetlony zostaje cel dzienny dla użytkownika. Cel dzienny polega na zwyczajnym wskazaniu, ile może on wydać dziennie bądź ile powinien on dziennie odłożyć, by cel udało się spełnić.
+![Operations view actions](images/4.png)
 
-![alt text](5.png)
+After a goal is set, the BottomSheet displays a daily target. The daily target simply tells how much the user can spend each day, or how much needs to be saved daily, so the goal is achieved on time.
+
+![Budget goal feature in operations view](images/5.png)
